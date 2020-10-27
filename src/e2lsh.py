@@ -9,8 +9,45 @@ class LSH:
         for q in hvs:
             buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
             table, bucket = random.choice(buckets)
-            results.append(random.choice(self.tables[table][bucket]))
+            results.append(random.choice(list(self.tables[table][bucket])))
         return results
+
+    def weighted_uniform_query(self, Y):
+        hvs = self._hash(Y)
+        bucket_sizes = []
+        results = []
+        for q in hvs:
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            s = 0
+            for table, bucket in buckets:
+                s += len(self.tables[table][bucket])
+            bucket_sizes.append(s)
+
+        for i, q in enumerate(hvs):
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            i = random.randrange(bucket_sizes[i])
+            s = 0
+            for table, bucket in buckets:
+                s += len(self.tables[table][bucket])
+                if s > table:
+                    results.append(random.choice(list(self.tables[table][bucket])))
+                    break
+        return results
+
+    def opt(self, Y):
+        hvs = self._hash(Y)
+        results = []
+        for q in hvs:
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            elements = set()
+            for table, bucket in buckets:
+                elements = elements.union(self.tables[table][bucket])
+            results.append(random.choice(list(elements)))
+        return results
+
+    def approx(self, Y, eps=0.2):
+        pass
+
 
 class E2LSH(LSH):
 
@@ -39,10 +76,12 @@ class E2LSH(LSH):
         for i in range(n):
             for j in range(self.L):
                 h = self._get_hash_value(hvs[i], j) 
-                self.tables[j].setdefault(h, []).append(i)
+                self.tables[j].setdefault(h, set()).add(i)
+
 
 def distance(u, v):
     return np.linalg.norm(u, v)
+
 
 if __name__ == "__main__":
     d = 10 
@@ -55,13 +94,4 @@ if __name__ == "__main__":
     X = np.random.normal(0.0, 1.0, (d, n))    
     lsh.preprocess(X)
     Y = np.random.normal(0.0, 1.0, (d, m))
-    print(lsh.uniform_query(Y))
-
-
-
-
-
-
-
-
-
+    print(lsh.opt(Y))
