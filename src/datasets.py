@@ -93,7 +93,7 @@ def glove(out_fn, d):
         for line in z.open(z_fn):
             v = [float(x) for x in line.strip().split()[1:]]
             X.append(numpy.array(v))
-        write_output(numpy.array(random.choices(X, k=10100)), out_fn, 0.9)
+        write_output(numpy.array(random.choices(X, k=10300)), out_fn, 5.1, queries=400)
 
 def _load_texmex_vectors(f, n, k):
     import struct
@@ -125,7 +125,7 @@ def sift(out_fn):
     with tarfile.open(fn, 'r:gz') as t:
         train = _get_irisa_matrix(t, 'sift/sift_base.fvecs')
         train, _ = train_test_split(train, train_size=10100, random_state=4)
-        write_output(train, out_fn, 255)
+        write_output(train, out_fn, 300)
 
 
 def _load_mnist_vectors(fn):
