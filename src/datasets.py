@@ -6,6 +6,7 @@ import random
 import sys
 import pickle
 from distance import l2, jaccard
+from sklearn.model_selection import train_test_split
 
 try:
         from urllib import urlretrieve
@@ -44,21 +45,36 @@ def get_dataset(which):
 
 # Everything below this line is related to creating datasets
 
-def write_output(X, fn, r, dist=l2, queries=100):
-    from sklearn.model_selection import train_test_split
-
+def write_output(X, fn, r, dist=l2, queries=200):
     def bruteforce(X, Y, f):
-        distances = [] 
+        distances = [[] for _ in range(len(Y))] 
         for i, y in enumerate(Y):
             for j, x in enumerate(X):
                 if f(x, y):
-                    distances.setdefault(i, []).append(j)
+                    distances[i].append(j)
         return distances
 
     print('Splitting dataset')
-    X, Y = train_test_split(X, train_size=queries, random_state=3)
+    X, Y = train_test_split(X, test_size=queries, random_state=4)
 
     ground_truth = bruteforce(X, Y, lambda x, y: l2(x, y) <= r)
+    # just get the ones where there are neighbors
+    ground_truth_filtered = [(i, g) for i, g in enumerate(ground_truth) if len(g) > 0 ]
+    
+    print(len(ground_truth_filtered))
+
+    ground_truth = []
+    Ys = []
+
+    for i, g in random.choices(ground_truth_filtered, k=100):
+        ground_truth.append(g)
+        Ys.append(Y[i])
+
+    Y = numpy.array(Ys)
+    
+
+    print(f"Avg true neighbors: {sum([len(x) for x in ground_truth]) / queries}")
+    print(f"No near neighbors: {sum([1 for x in ground_truth if len(x) == 0])}")
 
     with open(fn, 'wb') as f:
         pickle.dump([X, Y, ground_truth], f, pickle.HIGHEST_PROTOCOL)
@@ -77,7 +93,7 @@ def glove(out_fn, d):
         for line in z.open(z_fn):
             v = [float(x) for x in line.strip().split()[1:]]
             X.append(numpy.array(v))
-        write_output(numpy.array(random.choice(X, 10100)), out_fn, 0.9)
+        write_output(numpy.array(random.choices(X, k=10100)), out_fn, 0.9)
 
 def _load_texmex_vectors(f, n, k):
     import struct
@@ -108,7 +124,8 @@ def sift(out_fn):
     download(url, fn)
     with tarfile.open(fn, 'r:gz') as t:
         train = _get_irisa_matrix(t, 'sift/sift_base.fvecs')
-        write_output(train, out_fn)
+        train, _ = train_test_split(train, train_size=10100, random_state=4)
+        write_output(train, out_fn, 255)
 
 
 def _load_mnist_vectors(fn):
@@ -148,8 +165,9 @@ def mnist(out_fn):
         'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz', 'mnist-train.gz')  # noqa
     download(
         'http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz', 'mnist-test.gz')  # noqa
-    train = _load_mnist_vectors('mnist-train.gz')
-    write_output(train, out_fn)
+    train, _ = train_test_split(_load_mnist_vectors('mnist-train.gz'), train_size=10200)
+
+    write_output(train, out_fn, 1500)
 
 DATASETS = {
     'glove-100-angular': lambda out_fn: glove(out_fn, 100),
