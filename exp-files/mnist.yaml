@@ -1,0 +1,11 @@
+dataset: mnist-784-euclidean
+k: [10]
+L: [100, 200, 500]
+dist_threshold: 1500
+runs: 1
+lsh:
+ type: "e2lsh"
+ w: 1500
+
+
+

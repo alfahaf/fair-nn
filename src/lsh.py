@@ -1,10 +1,19 @@
 import numpy as np
 import random
 import time
+import distance
+
+class LSHBuilder:
+    @staticmethod
+    def build(d, r, k, L, lsh_params):
+        if lsh_params['type'] == 'e2lsh':
+            return E2LSH(k, L, lsh_params['w'], d, r)
+
 
 class LSH:
     def preprocess(self, X):
-        d, n = X.shape
+        self.X = X
+        n, d = X.shape
         hvs = self._hash(X)
         self.tables = [{} for _ in range(self.L)]
         for i in range(n):
@@ -29,7 +38,8 @@ class LSH:
             buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
             s = 0
             for table, bucket in buckets:
-                s += len(self.tables[table][bucket])
+                s += len(self.tables[table].get(bucket, []))
+            print(s)
             bucket_sizes.append(s)
 
         for _ in range(1000):
@@ -38,25 +48,34 @@ class LSH:
                 i = random.randrange(bucket_sizes[i])
                 s = 0
                 for table, bucket in buckets:
-                    s += len(self.tables[table][bucket])
+                    s += len(self.tables[table].get(bucket, []))
                     if s > table:
                         results.append(random.choice(list(self.tables[table][bucket])))
                         break
         return results
 
-    def opt(self, Y):
+    def opt(self, Y, runs=100):
         hvs = self._hash(Y)
-        results = []
-        for q in hvs:
+        results = {i: [] for i in range(len(hvs))}
+        for j, q in enumerate(hvs):
             buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
             elements = set()
             for table, bucket in buckets:
-                elements = elements.union(self.tables[table][bucket])
-            results.append(random.choice(list(elements)))
+                elements = elements.union(self.tables[table].get(bucket, []))
+            elements = list(x for x in elements 
+                if self.is_candidate_valid(Y[j], self.X[x]))
+            if elements == []:
+                elements = [-1]
+
+            for _ in range(runs):
+                results[j].append(random.choice(elements))
         return results
 
     def approx(self, Y, eps=0.2):
         pass
+
+    def is_candidate_valid(self, q, x):
+        return True
 
 class MinHash():
     def __init__(self):
@@ -80,9 +99,10 @@ class MinHash():
                 return x
 
 class OneBitMinHash(LSH):
-    def __init__(self, k, L, seed=3):
+    def __init__(self, k, L, r, seed=3):
         self.k = k
         self.L = L
+        self.r = r
         self.hash_fcts = [[MinHash() for _ in range(k)] for _ in range(L)]
 
     def _hash(self, X):
@@ -100,9 +120,15 @@ class OneBitMinHash(LSH):
     def _get_hash_value(self, arr, idx):
         return arr[idx]
 
+    def is_candidate_valid(self, q, x):
+        return distance.jaccard(q, x) >= r
+
+    def __str__(self):
+        return f"OneBitMinHash(k={self.k}, L={self.L})"
+
 
 class E2LSH(LSH):
-    def __init__(self, k, L, w, d, seed=3):
+    def __init__(self, k, L, w, d, r, seed=3):
         np.random.seed(seed)
         random.seed(seed)
         self.A = np.random.normal(0.0, 1.0, (d, k * L))
@@ -110,9 +136,10 @@ class E2LSH(LSH):
         self.w = w
         self.L = L
         self.k = k
+        self.r = r
 
     def _hash(self, X):
-        X = np.transpose(X)
+        #X = np.transpose(X)
         hvs = np.matmul(X, self.A) 
         hvs += self.b
         hvs /= self.w
@@ -121,12 +148,15 @@ class E2LSH(LSH):
     def _get_hash_value(self, arr, idx):
         return tuple(arr[idx * self.k: (idx + 1) * self.k])
 
+    def is_candidate_valid(self, q, x):
+        #print(distance.l2(q, x))
+        return distance.l2(q, x) <= self.r
 
-def l2(u, v):
-    return np.linalg.norm(u, v)
+    def __str__(self):
+        return f"E2LSH(k={self.k}, L={self.L}, w={self.w})"
 
-def jaccard(u, v):
-    pass
+    def __repr__(self):
+        return f"k_{self.k}_L_{self.L}_w_{self.w}"
 
 def test_minhash():
     n = 10000
@@ -160,4 +190,5 @@ def test_euclidean():
 
 if __name__ == "__main__":
     test_euclidean()
+    test_minhash()
 

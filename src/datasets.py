@@ -25,19 +25,19 @@ def download(src, dst):
 def get_dataset_fn(dataset):
     if not os.path.exists('data'):
         os.mkdir('data')
-    return os.path.join('data', '%s.txt' % dataset)
-           
+    return os.path.join('data', '%s.pickle' % dataset)
 
 def get_dataset(which):
     fn = get_dataset_fn(which)
-    try:
-        url = 'http://todo/%s.hdf5' % which
-        download(url, hdf5_fn)
-    except:
-        print("Cannot download %s" % url)
-        if which in DATASETS:
-            print("Creating dataset locally")
-            DATASETS[which](fn)
+    if not os.path.exists(fn):
+        try:
+            url = 'http://todo/%s.hdf5' % which
+            download(url, hdf5_fn)
+        except:
+            print("Cannot download %s" % url)
+            if which in DATASETS:
+                print("Creating dataset locally")
+                DATASETS[which](fn)
     with open(fn, 'rb') as f:
         data, queries, ground_truth = pickle.load(f)
     return data, queries, ground_truth 
