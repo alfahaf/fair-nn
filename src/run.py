@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     for k in exp_file['k']:
         for L in exp_file['L']:
-            for method in ["opt", "lsh"]:
+            for method in ["opt", "uniform", "weighted_uniform"]:
                 lsh = LSHBuilder.build(data.shape[1], 
                     exp_file['dist_threshold'], k, L, exp_file['lsh'])
                 res_fn = get_result_fn(exp_file['dataset'], 
@@ -49,11 +49,7 @@ if __name__ == "__main__":
                     print(f"{res_fn} exists, skipping.")
                 else:
                     params.setdefault((k, L), [])
-                    params[(k, l)].append(method)
-                    
-                    
-                
-
+                    params[(k, L)].append(method)
 
     for k, L in params.keys():
         lsh = LSHBuilder.build(data.shape[1], 
@@ -70,8 +66,10 @@ if __name__ == "__main__":
 
             if method == "opt":
                 res = lsh.opt(queries, exp_file['runs'])
-            if method == "lsh":
+            if method == "uniform":
                 res = lsh.uniform_query(queries, exp_file['runs'])
+            if method == "weighted_uniform":
+                res = lsh.weighted_uniform_query(queries, exp_file['runs'])
 
             res_dict = {
                 "name": str(lsh),

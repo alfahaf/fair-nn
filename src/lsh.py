@@ -34,27 +34,29 @@ class LSH:
                 results[j].append(random.choice(elements))
         return results
 
-    def weighted_uniform_query(self, Y):
+    def weighted_uniform_query(self, Y, runs=1000):
         hvs = self._hash(Y)
         bucket_sizes = []
-        results = []
+        results = {i: [] for i in range(len(hvs))}
         for q in hvs:
             buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
             s = 0
             for table, bucket in buckets:
                 s += len(self.tables[table].get(bucket, []))
-            print(s)
             bucket_sizes.append(s)
 
-        for _ in range(1000):
-            for i, q in enumerate(hvs):
+        for _ in range(runs):
+            for j, q in enumerate(hvs):
+                if bucket_sizes[j] == 0:
+                    results[j].append(-1)
+                    continue
                 buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
-                i = random.randrange(bucket_sizes[i])
+                i = random.randrange(bucket_sizes[j])
                 s = 0
                 for table, bucket in buckets:
                     s += len(self.tables[table].get(bucket, []))
                     if s > table:
-                        results.append(random.choice(list(self.tables[table][bucket])))
+                        results[j].append(random.choice(list(self.tables[table][bucket])))
                         break
         return results
 
@@ -79,7 +81,7 @@ class LSH:
         pass
 
     def is_candidate_valid(self, q, x):
-        return True
+        pass
 
 class MinHash():
     def __init__(self):
