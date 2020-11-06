@@ -8,6 +8,8 @@ class LSHBuilder:
     def build(d, r, k, L, lsh_params):
         if lsh_params['type'] == 'e2lsh':
             return E2LSH(k, L, lsh_params['w'], d, r)
+        if lsh_params['type'] == 'onebitminhash':
+            return OneBitMinHash(k, L)
 
 
 class LSH:
@@ -21,13 +23,15 @@ class LSH:
                 h = self._get_hash_value(hvs[i], j) 
                 self.tables[j].setdefault(h, set()).add(i)
 
-    def uniform_query(self, Y):
+    def uniform_query(self, Y, runs=1000):
         hvs = self._hash(Y)
-        results = []
-        for q in hvs:
-            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
-            table, bucket = random.choice(buckets)
-            results.append(random.choice(list(self.tables[table][bucket])))
+        results = {i: [] for i in range(len(hvs))}
+        for j, q in enumerate(hvs):
+            for _ in range(runs):
+                buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+                table, bucket = random.choice(buckets)
+                elements = list(self.tables[table].get(bucket, [-1]))
+                results[j].append(random.choice(elements))
         return results
 
     def weighted_uniform_query(self, Y):
