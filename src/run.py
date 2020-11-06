@@ -2,6 +2,7 @@ import sys
 import argparse
 import yaml
 import pickle
+import os
 from lsh import LSHBuilder
 from datasets import get_dataset, DATASETS
 from distance import l2, jaccard
@@ -23,26 +24,61 @@ if __name__ == "__main__":
         '--exp-file',
         required=True,
     )
+    parser.add_argument(
+        '--force',
+        default=False,
+    )
     args = parser.parse_args()
+
     data, queries, ground_truth = get_dataset(args.dataset)
     with open(args.exp_file) as f:
         exp_file = yaml.load(f)
 
     data, queries, ground_truth = get_dataset(exp_file['dataset'])
+
+    params = {}
+
     for k in exp_file['k']:
         for L in exp_file['L']:
-            lsh = LSHBuilder.build(data.shape[1], 
-                exp_file['dist_threshold'], k, L, exp_file['lsh'])
+            for method in ["opt", "lsh"]:
+                lsh = LSHBuilder.build(data.shape[1], 
+                    exp_file['dist_threshold'], k, L, exp_file['lsh'])
+                res_fn = get_result_fn(exp_file['dataset'], 
+                    exp_file['lsh']['type'], method, repr(lsh)) 
+                if os.path.exists(res_fn) and not args.force:
+                    print(f"{res_fn} exists, skipping.")
+                else:
+                    params.setdefault((k, L), [])
+                    params[(k, l)].append(method)
+                    
+                    
+                
 
-            lsh.preprocess(data)
 
-            res_fn = get_result_fn(exp_file['dataset'], exp_file['lsh']['type'], repr(lsh)) 
+    for k, L in params.keys():
+        lsh = LSHBuilder.build(data.shape[1], 
+            exp_file['dist_threshold'], k, L, exp_file['lsh'])
 
-            res = lsh.opt(queries, exp_file['runs'])
+        lsh.preprocess(data)
+
+        for method in params[(k, L)]:
+            res_fn = get_result_fn(exp_file['dataset'], 
+                exp_file['lsh']['type'], method, repr(lsh)) 
+            if os.path.exists(res_fn) and not args.force:
+                print(f"{res_fn} exists, skipping.")
+                continue
+
+            if method == "opt":
+                res = lsh.opt(queries, exp_file['runs'])
+            if method == "lsh":
+                res = lsh.uniform_query(queries, exp_file['runs'])
 
             res_dict = {
-                "name" : str(lsh),
-                "res" : res
+                "name": str(lsh),
+                "method" : method,
+                "res": res,
+                "dataset": exp_file['dataset'],
+                "dist_threshold": exp_file['dist_threshold'],
             }
 
             with open(res_fn, 'wb') as f:
