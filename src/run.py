@@ -26,7 +26,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         '--force',
-        default=False,
+        action='store_true',
     )
     args = parser.parse_args()
 
@@ -58,6 +58,7 @@ if __name__ == "__main__":
         lsh.preprocess(data)
 
         for method in params[(k, L)]:
+            print(f"Running (k={k}, L={L}) with {method}")
             res_fn = get_result_fn(exp_file['dataset'], 
                 exp_file['lsh']['type'], method, repr(lsh)) 
             if os.path.exists(res_fn) and not args.force:

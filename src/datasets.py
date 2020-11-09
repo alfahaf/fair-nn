@@ -42,18 +42,50 @@ def get_dataset(which):
         data, queries, ground_truth = pickle.load(f)
     return data, queries, ground_truth 
 
-
 # Everything below this line is related to creating datasets
+def bruteforce(X, Y, f):
+    distances = [[] for _ in range(len(Y))] 
+    for i, y in enumerate(Y):
+        for j, x in enumerate(X):
+            if f(x, y, X, Y):
+                distances[i].append(j)
+    return distances
 
-def write_output(X, fn, r, dist=l2, queries=200):
-    def bruteforce(X, Y, f):
-        distances = [[] for _ in range(len(Y))] 
-        for i, y in enumerate(Y):
-            for j, x in enumerate(X):
-                if f(x, y):
-                    distances[i].append(j)
-        return distances
+def find_interesting_queries(data, dist_threshold, 
+        distance, test_size, query_size, num_neighbors):
+    print("Running brute-force scan")
+    if distance == l2:
+        distances = bruteforce(data, data, lambda x, y, X, Y: l2(x, y) <= dist_threshold) 
+    if distance == jaccard:
+        distances = bruteforce(data, data, lambda x, y, X, Y: jaccard(X[x], Y[y]) >= dist_threshold)
+    
+    distances = [(i, l) for i, l in enumerate(distances) if len(l) >= num_neighbors]
+    random.shuffle(distances)
 
+    print(len(distances))
+    assert len(distances) >= query_size 
+
+    distances = distances[:query_size]
+    distances_idx = set([i for i, _ in distances])
+    X = [data[i] for i in range(len(data)) if i not in distances_idx]
+    Y = [data[i] for i in distances_idx]
+
+    assert(len(X)) >= test_size
+
+    random.shuffle(X)
+
+    if distance == l2:
+        distances = bruteforce(X, Y, lambda x, y: l2(x, y) <= dist_threshold) 
+    if distance == jaccard:
+        distances = bruteforce(X, Y, lambda x, y: jaccard(x,y) >= dist_threshold)
+
+    return X, Y, distances
+
+    
+     
+     
+    
+def write_output(X, Y, ground_truth, fn, attrs):
     print('Splitting dataset')
     X, Y = train_test_split(X, test_size=queries, random_state=4)
 
@@ -73,11 +105,8 @@ def write_output(X, fn, r, dist=l2, queries=200):
     Y = numpy.array(Ys)
     
 
-    print(f"Avg true neighbors: {sum([len(x) for x in ground_truth]) / queries}")
-    print(f"No near neighbors: {sum([1 for x in ground_truth if len(x) == 0])}")
-
     with open(fn, 'wb') as f:
-        pickle.dump([X, Y, ground_truth], f, pickle.HIGHEST_PROTOCOL)
+        pickle.dump([X, Y, ground_truth, attrs], f, pickle.HIGHEST_PROTOCOL)
 
 
 def glove(out_fn, d):
@@ -86,6 +115,12 @@ def glove(out_fn, d):
     url = 'http://nlp.stanford.edu/data/glove.twitter.27B.zip'
     fn = os.path.join('data', 'glove.twitter.27B.zip')
     download(url, fn)
+
+    attrs = {
+        "dist_threshold": 5.1,
+        "queries": 50,
+        "n": 10_000,
+    }
     with zipfile.ZipFile(fn) as z:
         print('preparing %s' % out_fn)
         z_fn = 'glove.twitter.27B.%dd.txt' % d
@@ -93,7 +128,14 @@ def glove(out_fn, d):
         for line in z.open(z_fn):
             v = [float(x) for x in line.strip().split()[1:]]
             X.append(numpy.array(v))
-        write_output(numpy.array(random.choices(X, k=10300)), out_fn, 5.1, queries=400)
+        
+        X, Y, groundtruth = find_interesting_queries(
+            random.choices(X, k=10300), 
+            dist_threshold=attrs["dist_threshold"], 
+            distance=l2, 
+            test_size=attrs["size"], 
+            queries=attrs["n"])
+        write_output(numpy.array(X), numpy.array(Y), groundtruth, out_fn, attrs)
 
 def _load_texmex_vectors(f, n, k):
     import struct
@@ -169,10 +211,46 @@ def mnist(out_fn):
 
     write_output(train, out_fn, 1500)
 
+def lastfm(out_fn):
+    import zipfile 
+
+    fn = os.path.join('data', 'lastfm.zip')
+    download('http://files.grouplens.org/datasets/hetrec2011/hetrec2011-lastfm-2k.zip', fn) # noqa
+    with zipfile.ZipFile(fn) as z:
+        data = {}
+        for line in z.open('user_artists.dat'):
+            try:
+                user, artist, weight = map(int, line.decode().split("\t"))
+                data.setdefault(user, set()).add((artist, weight))
+            except:
+                continue
+    write_output(data, out_fn, 0.2)
+
+def movielens(out_fn):
+    import zipfile 
+
+    fn = os.path.join('data', 'movielens.zip')
+    download('http://files.grouplens.org/datasets/hetrec2011/hetrec2011-movielens-2k-v2.zip', fn) # noqa
+    with zipfile.ZipFile(fn) as z:
+        data = {}
+        for line in z.open('user_ratedmovies.dat'):
+            try:
+                user, movie, rating = map(int, line.decode().split("\t")[:3])
+                if rating >= 4:
+                    data.setdefault(user, set()).add(movie)
+            except:
+                continue
+    data, queries, groundtruth = find_interesting_queries(data, query_size=50, 
+                        dist_threshold=0.15, distance=jaccard, test_size=2000,
+                        num_neighbors=40)
+    write_output(data, queries, groundtruth, out_fn, 0.2)
+
 DATASETS = {
     'glove-100-angular': lambda out_fn: glove(out_fn, 100),
     'mnist-784-euclidean': mnist,
     'sift-128-euclidean': sift,
+    'lastfm': lastfm,
+    'movielens': movielens,
 }
 
 import argparse
