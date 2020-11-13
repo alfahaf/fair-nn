@@ -1,0 +1,9 @@
+dataset: sift-128-euclidean 
+k: [10, 15]
+L: [100, 200, 500]
+dist_threshold: 300 
+runs: 5
+validate: False
+lsh:
+ type: "e2lsh"
+ w: 4 

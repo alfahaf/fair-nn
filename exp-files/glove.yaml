@@ -1,0 +1,9 @@
+dataset: glove-100-angular 
+k: [10, 15]
+L: [100, 200, 500]
+dist_threshold: 5.1
+runs: 5
+validate: False
+lsh:
+ type: "e2lsh"
+ w: 4 

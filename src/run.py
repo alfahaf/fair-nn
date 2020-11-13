@@ -38,11 +38,15 @@ if __name__ == "__main__":
 
     params = {}
 
+    validate = True
+    if "validate" in exp_file:
+        validate = exp_file["validate"]
+
     for k in exp_file['k']:
         for L in exp_file['L']:
             for method in ["opt", "uniform", "weighted_uniform"]:
                 lsh = LSHBuilder.build(len(data[0]), 
-                    exp_file['dist_threshold'], k, L, exp_file['lsh'])
+                    exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
                 res_fn = get_result_fn(exp_file['dataset'], 
                     exp_file['lsh']['type'], method, repr(lsh)) 
                 if os.path.exists(res_fn) and not args.force:
@@ -53,7 +57,7 @@ if __name__ == "__main__":
 
     for k, L in params.keys():
         lsh = LSHBuilder.build(len(data[0]), 
-            exp_file['dist_threshold'], k, L, exp_file['lsh'])
+            exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
 
         lsh.preprocess(data)
 
