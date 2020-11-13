@@ -5,17 +5,17 @@ import distance
 
 class LSHBuilder:
     @staticmethod
-    def build(d, r, k, L, lsh_params):
+    def build(d, r, k, L, lsh_params, validate=False):
         if lsh_params['type'] == 'e2lsh':
-            return E2LSH(k, L, lsh_params['w'], d, r)
+            return E2LSH(k, L, lsh_params['w'], d, r, validate)
         if lsh_params['type'] == 'onebitminhash':
-            return OneBitMinHash(k, L)
+            return OneBitMinHash(k, L, validate)
 
 
 class LSH:
     def preprocess(self, X):
         self.X = X
-        n, d = X.shape
+        n, d = len(X), len(X[0]) 
         hvs = self._hash(X)
         self.tables = [{} for _ in range(self.L)]
         for i in range(n):
@@ -23,18 +23,32 @@ class LSH:
                 h = self._get_hash_value(hvs[i], j) 
                 self.tables[j].setdefault(h, set()).add(i)
 
-    def uniform_query(self, Y, runs=1000):
+    def get_query_size(self, Y):
         hvs = self._hash(Y)
         results = {i: [] for i in range(len(hvs))}
         for j, q in enumerate(hvs):
-            for _ in range(runs):
-                buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            elements = set()
+            for table, bucket in buckets:
+                elements = elements.union(self.tables[table].get(bucket, set()))
+            elements = set(x for x in elements if self.is_candidate_valid(Y[j], self.X[x]))
+            results[j] = len(elements)
+        return results
+
+    def uniform_query(self, Y, runs=100):
+        sizes = self.get_query_size(Y)
+        hvs = self._hash(Y)
+        results = {i: [] for i in range(len(hvs))}
+        for j, q in enumerate(hvs):
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            for _ in range(sizes[j] * runs):
                 table, bucket = random.choice(buckets)
                 elements = list(self.tables[table].get(bucket, [-1]))
                 results[j].append(random.choice(elements))
         return results
 
-    def weighted_uniform_query(self, Y, runs=1000):
+    def weighted_uniform_query(self, Y, runs=100):
+        sizes = self.get_query_size(Y)
         hvs = self._hash(Y)
         bucket_sizes = []
         results = {i: [] for i in range(len(hvs))}
@@ -45,12 +59,12 @@ class LSH:
                 s += len(self.tables[table].get(bucket, []))
             bucket_sizes.append(s)
 
-        for _ in range(runs):
-            for j, q in enumerate(hvs):
-                if bucket_sizes[j] == 0:
-                    results[j].append(-1)
-                    continue
-                buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+        for j, q in enumerate(hvs):
+            if bucket_sizes[j] == 0:
+                results[j].append(-1)
+                continue
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            for _ in range(sizes[j] * runs):
                 i = random.randrange(bucket_sizes[j])
                 s = 0
                 for table, bucket in buckets:
@@ -61,6 +75,7 @@ class LSH:
         return results
 
     def opt(self, Y, runs=100):
+        sizes = self.get_query_size(Y)
         hvs = self._hash(Y)
         results = {i: [] for i in range(len(hvs))}
         for j, q in enumerate(hvs):
@@ -73,7 +88,7 @@ class LSH:
             if elements == []:
                 elements = [-1]
 
-            for _ in range(runs):
+            for _ in range(sizes[j] * runs):
                 results[j].append(random.choice(elements))
         return results
 
@@ -105,11 +120,12 @@ class MinHash():
                 return x
 
 class OneBitMinHash(LSH):
-    def __init__(self, k, L, r, seed=3):
+    def __init__(self, k, L, r, validate=True, seed=3):
         self.k = k
         self.L = L
         self.r = r
         self.hash_fcts = [[MinHash() for _ in range(k)] for _ in range(L)]
+        self.validate = validate
 
     def _hash(self, X):
         self.hvs = []
@@ -127,14 +143,14 @@ class OneBitMinHash(LSH):
         return arr[idx]
 
     def is_candidate_valid(self, q, x):
-        return distance.jaccard(q, x) >= r
+        return not self.validate or distance.jaccard(q, x) >= self.r
 
     def __str__(self):
         return f"OneBitMinHash(k={self.k}, L={self.L})"
 
 
 class E2LSH(LSH):
-    def __init__(self, k, L, w, d, r, seed=3):
+    def __init__(self, k, L, w, d, r, validate=True, seed=3):
         np.random.seed(seed)
         random.seed(seed)
         self.A = np.random.normal(0.0, 1.0, (d, k * L))
@@ -143,6 +159,7 @@ class E2LSH(LSH):
         self.L = L
         self.k = k
         self.r = r
+        self.validate = validate
 
     def _hash(self, X):
         #X = np.transpose(X)
@@ -156,7 +173,7 @@ class E2LSH(LSH):
 
     def is_candidate_valid(self, q, x):
         #print(distance.l2(q, x))
-        return distance.l2(q, x) <= self.r
+        return not self.validate or distance.l2(q, x) <= self.r
 
     def __str__(self):
         return f"E2LSH(k={self.k}, L={self.L}, w={self.w})"

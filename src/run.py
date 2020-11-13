@@ -7,6 +7,7 @@ from lsh import LSHBuilder
 from datasets import get_dataset, DATASETS
 from distance import l2, jaccard
 from helpers import get_result_fn
+from timeit import default_timer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -30,18 +31,17 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    data, queries, ground_truth = get_dataset(args.dataset)
     with open(args.exp_file) as f:
         exp_file = yaml.load(f)
 
-    data, queries, ground_truth = get_dataset(exp_file['dataset'])
+    data, queries, ground_truth, attrs = get_dataset(exp_file['dataset'])
 
     params = {}
 
     for k in exp_file['k']:
         for L in exp_file['L']:
             for method in ["opt", "uniform", "weighted_uniform"]:
-                lsh = LSHBuilder.build(data.shape[1], 
+                lsh = LSHBuilder.build(len(data[0]), 
                     exp_file['dist_threshold'], k, L, exp_file['lsh'])
                 res_fn = get_result_fn(exp_file['dataset'], 
                     exp_file['lsh']['type'], method, repr(lsh)) 
@@ -52,13 +52,14 @@ if __name__ == "__main__":
                     params[(k, L)].append(method)
 
     for k, L in params.keys():
-        lsh = LSHBuilder.build(data.shape[1], 
+        lsh = LSHBuilder.build(len(data[0]), 
             exp_file['dist_threshold'], k, L, exp_file['lsh'])
 
         lsh.preprocess(data)
 
         for method in params[(k, L)]:
             print(f"Running (k={k}, L={L}) with {method}")
+            start = default_timer() 
             res_fn = get_result_fn(exp_file['dataset'], 
                 exp_file['lsh']['type'], method, repr(lsh)) 
             if os.path.exists(res_fn) and not args.force:
@@ -71,6 +72,9 @@ if __name__ == "__main__":
                 res = lsh.uniform_query(queries, exp_file['runs'])
             if method == "weighted_uniform":
                 res = lsh.weighted_uniform_query(queries, exp_file['runs'])
+
+            print(f"Run took {default_timer() - start} seconds.")
+            
 
             res_dict = {
                 "name": str(lsh),

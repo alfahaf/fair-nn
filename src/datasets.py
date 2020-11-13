@@ -39,25 +39,37 @@ def get_dataset(which):
                 print("Creating dataset locally")
                 DATASETS[which](fn)
     with open(fn, 'rb') as f:
-        data, queries, ground_truth = pickle.load(f)
-    return data, queries, ground_truth 
+        data, queries, ground_truth, attrs = pickle.load(f)
+    return data, queries, ground_truth, attrs 
 
 # Everything below this line is related to creating datasets
-def bruteforce(X, Y, f):
+def bruteforce(X, Y, f, stop=lambda x: False, max_cnt=-1):
     distances = [[] for _ in range(len(Y))] 
+    cnt = 0
     for i, y in enumerate(Y):
         for j, x in enumerate(X):
             if f(x, y):
                 distances[i].append(j)
+        cnt += stop(distances[i]) 
+        if cnt >= max_cnt: 
+            break
     return distances
 
 def find_interesting_queries(data, dist_threshold, 
         distance, test_size, query_size, num_neighbors):
     print("Running brute-force scan")
+
+    random.shuffle(data)
     if distance == l2:
-        distances = bruteforce(data, data, lambda x, y: l2(x, y) <= dist_threshold) 
+        distances = bruteforce(data, data, 
+            lambda x, y: l2(x, y) <= dist_threshold,
+            lambda x: len(x) >= num_neighbors,
+            query_size) 
     if distance == jaccard:
-        distances = bruteforce(data, data, lambda x, y: jaccard(x, y) >= dist_threshold)
+        distances = bruteforce(data, data, 
+            lambda x, y: jaccard(x, y) >= dist_threshold,
+            lambda x: len(x) >= num_neighbors,
+            query_size)
     
     distances = [(i, l) for i, l in enumerate(distances) if len(l) >= num_neighbors]
     random.shuffle(distances)
@@ -110,8 +122,9 @@ def glove(out_fn, d):
             random.choices(X, k=attrs["n"] + 6 * attrs["queries"]), 
             dist_threshold=attrs["dist_threshold"], 
             distance=l2, 
-            test_size=attrs["size"], 
-            queries=attrs["n"])
+            test_size=attrs["n"], 
+            query_size=attrs["queries"],
+            num_neighbors=40)
         write_output(numpy.array(X), numpy.array(Y), groundtruth, out_fn, attrs)
 
 def _load_texmex_vectors(f, n, k):
@@ -153,7 +166,7 @@ def sift(out_fn):
         train, _ = train_test_split(train, train_size=attrs["n"] + 6 * attrs["queries"], 
                                     random_state=4)
         print("splitting done")
-
+    
     data, queries, groundtruth = find_interesting_queries(train, 
                         query_size=attrs["queries"], 
                         dist_threshold=attrs["dist_threshold"], 
