@@ -1,0 +1,8 @@
+dataset: lastfm 
+k: [11]
+L: [100, 200, 500]
+dist_threshold: 0.2 
+runs: 5
+validate: False
+lsh:
+ type: "onebitminhash"
