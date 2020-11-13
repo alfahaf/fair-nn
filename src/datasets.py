@@ -6,7 +6,6 @@ import random
 import sys
 import pickle
 from distance import l2, jaccard
-from sklearn.model_selection import train_test_split
 
 try:
         from urllib import urlretrieve
@@ -150,6 +149,7 @@ def _get_irisa_matrix(t, fn):
 
 def sift(out_fn):
     import tarfile
+    from sklearn.model_selection import train_test_split
 
     attrs = {
         "dist_threshold": 300,
@@ -208,6 +208,7 @@ def _load_mnist_vectors(fn):
 
 
 def mnist(out_fn):
+    from sklearn.model_selection import train_test_split
     download(
         'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz', 'mnist-train.gz')  # noqa
 

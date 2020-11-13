@@ -30,8 +30,9 @@ class LSH:
             buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
             elements = set()
             for table, bucket in buckets:
-                elements = elements.union(self.tables[table].get(bucket, set()))
-            elements = set(x for x in elements if self.is_candidate_valid(Y[j], self.X[x]))
+                elements |= self.tables[table].get(bucket, set())
+            elements = set(x for x in elements 
+                if self.is_candidate_valid(Y[j], self.X[x]))
             results[j] = len(elements)
         return results
 

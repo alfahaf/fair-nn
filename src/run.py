@@ -9,6 +9,22 @@ from distance import l2, jaccard
 from helpers import get_result_fn
 from timeit import default_timer
 
+def get_experiments(data, exp_file):
+    params = {}
+    for k in exp_file['k']:
+        for L in exp_file['L']:
+            for method in ["opt", "uniform", "weighted_uniform"]:
+                lsh = LSHBuilder.build(len(data[0]), 
+                    exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
+                res_fn = get_result_fn(exp_file['dataset'], 
+                    exp_file['lsh']['type'], method, repr(lsh)) 
+                if os.path.exists(res_fn) and not args.force:
+                    print(f"{res_fn} exists, skipping.")
+                else:
+                    params.setdefault((k, L), []).append(method)
+    return params
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -36,39 +52,23 @@ if __name__ == "__main__":
 
     data, queries, ground_truth, attrs = get_dataset(exp_file['dataset'])
 
-    params = {}
-
     validate = True
     if "validate" in exp_file:
         validate = exp_file["validate"]
 
-    for k in exp_file['k']:
-        for L in exp_file['L']:
-            for method in ["opt", "uniform", "weighted_uniform"]:
-                lsh = LSHBuilder.build(len(data[0]), 
-                    exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
-                res_fn = get_result_fn(exp_file['dataset'], 
-                    exp_file['lsh']['type'], method, repr(lsh)) 
-                if os.path.exists(res_fn) and not args.force:
-                    print(f"{res_fn} exists, skipping.")
-                else:
-                    params.setdefault((k, L), [])
-                    params[(k, L)].append(method)
+    params = get_experiments(data, exp_file)
 
     for k, L in params.keys():
         lsh = LSHBuilder.build(len(data[0]), 
             exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
 
+        s = default_timer()
         lsh.preprocess(data)
+        print(f"Index building took {default_timer() - s} s.")
 
         for method in params[(k, L)]:
             print(f"Running (k={k}, L={L}) with {method}")
             start = default_timer() 
-            res_fn = get_result_fn(exp_file['dataset'], 
-                exp_file['lsh']['type'], method, repr(lsh)) 
-            if os.path.exists(res_fn) and not args.force:
-                print(f"{res_fn} exists, skipping.")
-                continue
 
             if method == "opt":
                 res = lsh.opt(queries, exp_file['runs'])
@@ -79,6 +79,8 @@ if __name__ == "__main__":
 
             print(f"Run took {default_timer() - start} seconds.")
             
+            res_fn = get_result_fn(exp_file['dataset'], 
+                exp_file['lsh']['type'], method, repr(lsh)) 
 
             res_dict = {
                 "name": str(lsh),
