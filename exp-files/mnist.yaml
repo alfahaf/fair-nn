@@ -1,8 +1,8 @@
 dataset: mnist-784-euclidean
-k: [8, 10]
+k: [8, 10, 12]
 L: [100, 200, 500]
 dist_threshold: 1500
-runs: 5
+runs: 100 
 validate: False 
 lsh:
  type: "e2lsh"
