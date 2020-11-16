@@ -49,6 +49,7 @@ class LSH:
         return results
 
     def weighted_uniform_query(self, Y, runs=100):
+        from bisect import bisect_right
         sizes = self.get_query_size(Y)
         hvs = self._hash(Y)
         bucket_sizes = []
@@ -65,14 +66,17 @@ class LSH:
                 results[j].append(-1)
                 continue
             buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            # compute prefix_sums
+            prefix_sums = [0 for _ in range(self.L)]
+            s = 0
+            for i, (table, bucket) in enumerate(buckets):
+                s += len(self.tables[table].get(bucket, []))
+                prefix_sums[i] = s
             for _ in range(sizes[j] * runs):
                 i = random.randrange(bucket_sizes[j])
-                s = 0
-                for table, bucket in buckets:
-                    s += len(self.tables[table].get(bucket, []))
-                    if s > i:
-                        results[j].append(random.choice(list(self.tables[table][bucket])))
-                        break
+                pos = bisect_right(prefix_sums, i)
+                table, bucket = buckets[pos]
+                results[j].append(random.choice(list(self.tables[table][bucket])))
         return results
 
     def opt(self, Y, runs=100):
