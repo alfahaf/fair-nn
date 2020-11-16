@@ -70,7 +70,7 @@ class LSH:
                 s = 0
                 for table, bucket in buckets:
                     s += len(self.tables[table].get(bucket, []))
-                    if s > table:
+                    if s > i:
                         results[j].append(random.choice(list(self.tables[table][bucket])))
                         break
         return results
@@ -148,6 +148,9 @@ class OneBitMinHash(LSH):
 
     def __str__(self):
         return f"OneBitMinHash(k={self.k}, L={self.L})"
+
+    def __repr__(self):
+        return f"k_{self.k}_L_{self.L}"
 
 
 class E2LSH(LSH):

@@ -68,6 +68,8 @@ if __name__ == "__main__":
 
         for method in params[(k, L)]:
             print(f"Running (k={k}, L={L}) with {method}")
+
+            candidates = lsh.get_query_size(queries)
             start = default_timer() 
 
             if method == "opt":
@@ -88,6 +90,7 @@ if __name__ == "__main__":
                 "res": res,
                 "dataset": exp_file['dataset'],
                 "dist_threshold": exp_file['dist_threshold'],
+                "candidates": candidates,
             }
 
             with open(res_fn, 'wb') as f:
