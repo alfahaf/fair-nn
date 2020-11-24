@@ -13,7 +13,7 @@ def get_experiments(data, exp_file):
     params = {}
     for k in exp_file['k']:
         for L in exp_file['L']:
-            for method in ["opt", "uniform", "weighted_uniform"]:
+            for method in ["opt", "uniform", "weighted_uniform", "approx_degree"]:
                 lsh = LSHBuilder.build(len(data[0]), 
                     exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
                 res_fn = get_result_fn(exp_file['dataset'], 
@@ -78,6 +78,8 @@ if __name__ == "__main__":
                 res = lsh.uniform_query(queries, exp_file['runs'])
             if method == "weighted_uniform":
                 res = lsh.weighted_uniform_query(queries, exp_file['runs'])
+            if method == "approx_degree":
+                res = lsh.approx_degree_query(queries, exp_file['runs'])
 
             print(f"Run took {default_timer() - start} seconds.")
             

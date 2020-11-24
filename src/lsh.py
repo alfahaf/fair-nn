@@ -97,8 +97,60 @@ class LSH:
                 results[j].append(random.choice(elements))
         return results
 
-    def approx(self, Y, eps=0.2):
-        pass
+    def approx_degree_query(self, Y, runs=100):
+        from bisect import bisect_right
+        sizes = self.get_query_size(Y)
+        hvs = self._hash(Y)
+        bucket_sizes = []
+        results = {i: [] for i in range(len(hvs))}
+        for q in hvs:
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            s = 0
+            for table, bucket in buckets:
+                s += len(self.tables[table].get(bucket, []))
+            bucket_sizes.append(s)
+
+        for j, q in enumerate(hvs):
+            print(j)
+            if bucket_sizes[j] == 0:
+                results[j].append(-1)
+                continue
+            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            # compute prefix_sums
+            prefix_sums = [0 for _ in range(self.L)]
+            s = 0
+            for i, (table, bucket) in enumerate(buckets):
+                s += len(self.tables[table].get(bucket, []))
+                prefix_sums[i] = s
+
+            for _ in range(sizes[j] * runs):
+                while True:
+                    i = random.randrange(bucket_sizes[j])
+                    pos = bisect_right(prefix_sums, i) # pick a random bucket
+                    table, bucket = buckets[pos]
+                    p = random.choice(list(self.tables[table][bucket]))  # pick a random element
+                    D = self.approx_degree(buckets, p)
+                    if random.randint(1, D) == D: # output with probability 1/D
+                        results[j].append(p)
+                        break
+        return results
+
+    def approx_degree(self, buckets, q):
+        num = 0
+        L = len(buckets)
+        while num < L:
+            num += 1
+            table, bucket = buckets[random.randrange(0, L)]
+            if q in self.tables[table].get(bucket, set()):
+                break
+        return L // num
+
+    def exact_degree(self, buckets, q):
+        cnt = 0
+        for table, bucket in buckets:
+            if q in self.tables[table].get(bucket, set()):
+                cnt += 1
+        return cnt 
 
     def is_candidate_valid(self, q, x):
         pass
