@@ -5,9 +5,8 @@ from metrics import result_prob, total_variation_dist
 
 
 def get_query_prob(result):
-    groundtruth = result["candidates"]
-    A = numpy.array([groundtruth[k] for k in sorted(groundtruth)])
-    return 1/A
+    groundtruth = numpy.array(result["candidates"])
+    return 1/groundtruth
 
 
 if __name__ == "__main__":
