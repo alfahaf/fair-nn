@@ -160,7 +160,7 @@ class LSH:
                     if bucket in self.tables[table]:
                         p = min(self.tables[table][bucket], key=lambda elem: point_rank[elem])
                         if point_rank[p] < min_rank:
-                            min_rank = ranks[p]
+                            min_rank = point_rank[p]
                             min_point = p
                 # exchange ranks
                 if min_point < n:
@@ -175,7 +175,6 @@ class LSH:
                     
                 else:
                     results[j].append(-1)
-        print(results)
         return results
 
 
