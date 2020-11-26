@@ -11,8 +11,27 @@ class LSHBuilder:
         if lsh_params['type'] == 'onebitminhash':
             return OneBitMinHash(k, L, validate)
 
+    @staticmethod
+    def invoke(lsh, method, queries, runs):
+        assert method in lsh.methods
+        if method == "opt":
+            res = lsh.opt(queries, runs)
+        if method == "uniform":
+            res = lsh.uniform_query(queries, runs)
+        if method == "weighted_uniform":
+            res = lsh.weighted_uniform_query(queries, runs)
+        if method == "approx_degree":
+            res = lsh.approx_degree_query(queries, runs)
+        return res
+
 
 class LSH:
+
+    methods = ["opt",
+        "uniform",
+        "weighted_uniform",
+        "approx_degree"]
+
     def preprocess(self, X):
         self.X = X
         n, d = len(X), len(X[0]) 
@@ -23,113 +42,92 @@ class LSH:
                 h = self._get_hash_value(hvs[i], j) 
                 self.tables[j].setdefault(h, set()).add(i)
 
-    def get_query_size(self, Y):
+    def preprocess_query(self, Y):
+        """Collect buckets, bucket sizes, and prefix_sums
+        to quickly answer queries."""
+        query_buckets = [[] for _ in range(len(Y))]
+        query_size = [0 for _ in range(len(Y))]
+        bucket_sizes = [0 for _ in range(len(Y))] 
+        prefix_sums = [[0 for _ in range(self.L)] for _ in range(len(Y))]
+        query_results = [set() for _ in range(len(Y))]
+
         hvs = self._hash(Y)
-        results = {i: [] for i in range(len(hvs))}
         for j, q in enumerate(hvs):
             buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+            query_buckets[j] = buckets
+            s = 0
             elements = set()
-            for table, bucket in buckets:
+            for i, (table, bucket) in enumerate(buckets):
+                s += len(self.tables[table].get(bucket, []))
                 elements |= self.tables[table].get(bucket, set())
+                prefix_sums[j][i] = s
             elements = set(x for x in elements 
                 if self.is_candidate_valid(Y[j], self.X[x]))
-            results[j] = len(elements)
-        return results
+            bucket_sizes[j] = s
+            query_size[j] = len(elements)
+            query_results[j] = elements
+        
+        return (query_buckets, query_size, query_results, 
+            bucket_sizes, prefix_sums)
+
+
+    def get_query_size(self, Y):
+        _, query_size, _, _, _ = self.preprocess_query(Y)
+        return query_size
 
     def uniform_query(self, Y, runs=100):
-        sizes = self.get_query_size(Y)
-        hvs = self._hash(Y)
-        results = {i: [] for i in range(len(hvs))}
-        for j, q in enumerate(hvs):
-            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
+        query_bucket, sizes, query_results, _, _ = self.preprocess_query(Y)
+        results = {i: [] for i in range(len(Y))}
+        for j in range(len(Y)):
             for _ in range(sizes[j] * runs):
-                table, bucket = random.choice(buckets)
-                elements = list(self.tables[table].get(bucket, [-1]))
+                table, bucket = query_bucket[j][random.randrange(0, self.L)]
+                elements = list(self.tables[table].get(bucket, []))
                 results[j].append(random.choice(elements))
         return results
 
     def weighted_uniform_query(self, Y, runs=100):
         from bisect import bisect_right
-        sizes = self.get_query_size(Y)
-        hvs = self._hash(Y)
-        bucket_sizes = []
-        results = {i: [] for i in range(len(hvs))}
-        for q in hvs:
-            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
-            s = 0
-            for table, bucket in buckets:
-                s += len(self.tables[table].get(bucket, []))
-            bucket_sizes.append(s)
+        query_buckets, query_size, _, bucket_sizes, prefix_sums = self.preprocess_query(Y)
+        results = {i: [] for i in range(len(Y))}
 
-        for j, q in enumerate(hvs):
-            if bucket_sizes[j] == 0:
-                results[j].append(-1)
-                continue
-            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
-            # compute prefix_sums
-            prefix_sums = [0 for _ in range(self.L)]
-            s = 0
-            for i, (table, bucket) in enumerate(buckets):
-                s += len(self.tables[table].get(bucket, []))
-                prefix_sums[i] = s
-            for _ in range(sizes[j] * runs):
+        for j in range(len(Y)):
+            for _ in range(query_size[j] * runs):
+                if bucket_sizes[j] == 0:
+                    results[j].append(-1)
+                    continue
                 i = random.randrange(bucket_sizes[j])
-                pos = bisect_right(prefix_sums, i)
-                table, bucket = buckets[pos]
-                results[j].append(random.choice(list(self.tables[table][bucket])))
+                pos = bisect_right(prefix_sums[j], i)
+                table, bucket = query_buckets[j][pos]
+                results[j].append(random.choice(
+                    list(self.tables[table][bucket])))
         return results
 
     def opt(self, Y, runs=100):
-        sizes = self.get_query_size(Y)
-        hvs = self._hash(Y)
-        results = {i: [] for i in range(len(hvs))}
-        for j, q in enumerate(hvs):
-            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
-            elements = set()
-            for table, bucket in buckets:
-                elements = elements.union(self.tables[table].get(bucket, []))
-            elements = list(x for x in elements 
-                if self.is_candidate_valid(Y[j], self.X[x]))
-            if elements == []:
-                elements = [-1]
+        _, query_size, query_results, _, _ = self.preprocess_query(Y)
+        results = {i: [] for i in range(len(Y))}
 
-            for _ in range(sizes[j] * runs):
+        for j in range(len(Y)):
+            elements = list(query_results[j])
+            for _ in range(query_size[j] * runs):
                 results[j].append(random.choice(elements))
         return results
 
     def approx_degree_query(self, Y, runs=100):
         from bisect import bisect_right
-        sizes = self.get_query_size(Y)
-        hvs = self._hash(Y)
-        bucket_sizes = []
-        results = {i: [] for i in range(len(hvs))}
-        for q in hvs:
-            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
-            s = 0
-            for table, bucket in buckets:
-                s += len(self.tables[table].get(bucket, []))
-            bucket_sizes.append(s)
+        query_buckets, query_size, _, bucket_sizes, prefix_sums = self.preprocess_query(Y)
+        results = {i: [] for i in range(len(Y))}
 
-        for j, q in enumerate(hvs):
-            print(j)
-            if bucket_sizes[j] == 0:
-                results[j].append(-1)
-                continue
-            buckets = [(i, self._get_hash_value(q, i)) for i in range(self.L)]
-            # compute prefix_sums
-            prefix_sums = [0 for _ in range(self.L)]
-            s = 0
-            for i, (table, bucket) in enumerate(buckets):
-                s += len(self.tables[table].get(bucket, []))
-                prefix_sums[i] = s
-
-            for _ in range(sizes[j] * runs):
+        for j in range(len(Y)):
+            for _ in range(query_size[j] * runs):
+                if bucket_sizes[j] == 0:
+                    results[j].append(-1)
+                    continue
                 while True:
                     i = random.randrange(bucket_sizes[j])
-                    pos = bisect_right(prefix_sums, i) # pick a random bucket
-                    table, bucket = buckets[pos]
-                    p = random.choice(list(self.tables[table][bucket]))  # pick a random element
-                    D = self.approx_degree(buckets, p)
+                    pos = bisect_right(prefix_sums[j], i)
+                    table, bucket = query_buckets[j][pos]
+                    p = random.choice(list(self.tables[table][bucket]))
+                    D = self.approx_degree(query_buckets[j], p)
                     if random.randint(1, D) == D: # output with probability 1/D
                         results[j].append(p)
                         break
