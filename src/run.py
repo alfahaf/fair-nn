@@ -72,14 +72,7 @@ if __name__ == "__main__":
             candidates = lsh.get_query_size(queries)
             start = default_timer() 
 
-            if method == "opt":
-                res = lsh.opt(queries, exp_file['runs'])
-            if method == "uniform":
-                res = lsh.uniform_query(queries, exp_file['runs'])
-            if method == "weighted_uniform":
-                res = lsh.weighted_uniform_query(queries, exp_file['runs'])
-            if method == "approx_degree":
-                res = lsh.approx_degree_query(queries, exp_file['runs'])
+            res = LSHBuilder.invoke(lsh, method, queries, exp_file["runs"])
 
             print(f"Run took {default_timer() - start} seconds.")
             
