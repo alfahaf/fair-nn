@@ -4,6 +4,13 @@ import time
 import distance
 
 class LSHBuilder:
+
+    methods = ["opt",
+        "uniform",
+        "weighted_uniform",
+        "approx_degree",
+        "rank"]
+
     @staticmethod
     def build(d, r, k, L, lsh_params, validate=False):
         if lsh_params['type'] == 'e2lsh':
@@ -13,7 +20,7 @@ class LSHBuilder:
 
     @staticmethod
     def invoke(lsh, method, queries, runs):
-        assert method in lsh.methods
+        assert method in LSHBuilder.methods
         if method == "opt":
             res = lsh.opt(queries, runs)
         if method == "uniform":
@@ -22,15 +29,12 @@ class LSHBuilder:
             res = lsh.weighted_uniform_query(queries, runs)
         if method == "approx_degree":
             res = lsh.approx_degree_query(queries, runs)
+        if method == "rank":
+            res = lsh.rank_query(queries, runs)
         return res
 
 
 class LSH:
-
-    methods = ["opt",
-        "uniform",
-        "weighted_uniform",
-        "approx_degree"]
 
     def preprocess(self, X):
         self.X = X
@@ -132,6 +136,48 @@ class LSH:
                         results[j].append(p)
                         break
         return results
+
+    def rank_query(self, Y, runs=100):
+        n = len(self.X)
+        ranks = list(range(n))
+        random.shuffle(ranks)
+
+        point_rank = [0 for _ in range(n)]
+        for rank, point in enumerate(ranks):
+            point_rank[point] = rank
+
+        results = {i: [] for i in range(len(Y))}
+        
+        # ranks[i] is rank of point i
+        query_buckets, query_size, _, _, _ = self.preprocess_query(Y)
+
+        for j in range(len(Y)):
+            for _ in range(query_size[j] * runs):
+                # search for point with smallest rank
+                min_point = n + 1
+                min_rank = n + 1
+                for table, bucket in query_buckets[j]: 
+                    if bucket in self.tables[table]:
+                        p = min(self.tables[table][bucket], key=lambda elem: point_rank[elem])
+                        if point_rank[p] < min_rank:
+                            min_rank = ranks[p]
+                            min_point = p
+                # exchange ranks
+                if min_point < n:
+                    results[j].append(min_point)
+                    new_rank = random.randrange(min_rank, n)
+
+                    q = ranks[new_rank] 
+                    ranks[min_rank] = q
+                    point_rank[q] = min_rank
+                    ranks[new_rank] = min_point
+                    point_rank[min_point] = new_rank
+                    
+                else:
+                    results[j].append(-1)
+        print(results)
+        return results
+
 
     def approx_degree(self, buckets, q):
         num = 0

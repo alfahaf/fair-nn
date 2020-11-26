@@ -13,7 +13,7 @@ def get_experiments(data, exp_file):
     params = {}
     for k in exp_file['k']:
         for L in exp_file['L']:
-            for method in ["opt", "uniform", "weighted_uniform", "approx_degree"]:
+            for method in LSHBuilder.methods:
                 lsh = LSHBuilder.build(len(data[0]), 
                     exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
                 res_fn = get_result_fn(exp_file['dataset'], 

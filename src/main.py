@@ -54,7 +54,7 @@ if __name__ == "__main__":
     lsh.preprocess(data)
 
     candidates = lsh.get_query_size(queries)
-    for method in lsh.methods:
+    for method in LSHBuilder.methods:
         print(f"Running (k={args.k}, L={args.L}) with {method}")
         start = time.time()
         res = LSHBuilder.invoke(lsh, method, queries, args.runs)
