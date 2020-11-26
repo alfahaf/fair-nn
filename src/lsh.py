@@ -139,19 +139,21 @@ class LSH:
 
     def rank_query(self, Y, runs=100):
         n = len(self.X)
+        m = len(Y)
+        # ranks[i] is point with rank i
+        # point_rank[j] is the rank of point j
         ranks = list(range(n))
+        point_rank = [0 for _ in range(n)]
         random.shuffle(ranks)
 
-        point_rank = [0 for _ in range(n)]
         for rank, point in enumerate(ranks):
             point_rank[point] = rank
 
-        results = {i: [] for i in range(len(Y))}
+        results = {i: [] for i in range(m)}
         
-        # ranks[i] is rank of point i
         query_buckets, query_size, _, _, _ = self.preprocess_query(Y)
 
-        for j in range(len(Y)):
+        for j in range(m):
             for _ in range(query_size[j] * runs):
                 # search for point with smallest rank
                 min_point = n + 1
