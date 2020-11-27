@@ -30,7 +30,7 @@ class LSHBuilder:
         if method == "approx_degree":
             res = lsh.approx_degree_query(queries, runs)
         if method == "rank":
-            res = lsh.rank_query(queries, runs)
+            res = lsh.rank_query_fast(queries, runs)
         return res
 
 
@@ -138,6 +138,44 @@ class LSH:
                     if random.randint(1, D) == D: # output with probability 1/D
                         results[j].append(p)
                         break
+        return results
+
+    def rank_query_fast(self, Y, runs=100):
+        import heapq
+        n = len(self.X)
+        m = len(Y)
+        # ranks[i] is point with rank i
+        # point_rank[j] is the rank of point j
+        ranks = list(range(n))
+        point_rank = [0 for _ in range(n)]
+        random.shuffle(ranks)
+
+        for rank, point in enumerate(ranks):
+            point_rank[point] = rank
+
+        results = {i: [] for i in range(m)}
+        
+        query_buckets, query_size, query_results, _, _ = self.preprocess_query(Y)
+
+        for j in range(m):
+            elements = list((point_rank[point], point) for point in query_results[j])
+            heapq.heapify(elements)
+            for _ in range(query_size[j] * runs):
+                rank, point = heapq.heappop(elements)
+                while rank != point_rank[point]:
+                    rank, point = heapq.heappop(elements)
+                results[j].append(point)
+
+                new_rank = random.randrange(rank, n)
+                q = ranks[new_rank] 
+                ranks[rank] = q
+                ranks[new_rank] = point
+                point_rank[q] = rank
+                point_rank[point] = new_rank
+
+                heapq.heappush(elements, (new_rank, point))
+                if q in query_results[j]:
+                    heapq.heappush(elements, (rank, q))
         return results
 
     def rank_query(self, Y, runs=100):
