@@ -38,12 +38,12 @@ class LSH:
 
     def preprocess(self, X):
         self.X = X
-        n, d = len(X), len(X[0]) 
+        n, d = len(X), len(X[0])
         hvs = self._hash(X)
         self.tables = [{} for _ in range(self.L)]
         for i in range(n):
             for j in range(self.L):
-                h = self._get_hash_value(hvs[i], j) 
+                h = self._get_hash_value(hvs[i], j)
                 self.tables[j].setdefault(h, set()).add(i)
 
     def preprocess_query(self, Y):
@@ -51,7 +51,7 @@ class LSH:
         to quickly answer queries."""
         query_buckets = [[] for _ in range(len(Y))]
         query_size = [0 for _ in range(len(Y))]
-        bucket_sizes = [0 for _ in range(len(Y))] 
+        bucket_sizes = [0 for _ in range(len(Y))]
         prefix_sums = [[0 for _ in range(self.L)] for _ in range(len(Y))]
         query_results = [set() for _ in range(len(Y))]
 
@@ -65,13 +65,13 @@ class LSH:
                 s += len(self.tables[table].get(bucket, []))
                 elements |= self.tables[table].get(bucket, set())
                 prefix_sums[j][i] = s
-            elements = set(x for x in elements 
+            elements = set(x for x in elements
                 if self.is_candidate_valid(Y[j], self.X[x]))
             bucket_sizes[j] = s
             query_size[j] = len(elements)
             query_results[j] = elements
-        
-        return (query_buckets, query_size, query_results, 
+
+        return (query_buckets, query_size, query_results,
             bucket_sizes, prefix_sums)
 
 
@@ -85,7 +85,7 @@ class LSH:
         for j in range(len(Y)):
             for _ in range(sizes[j] * runs):
                 table, bucket = query_bucket[j][random.randrange(0, self.L)]
-                elements = list(self.tables[table].get(bucket, []))
+                elements = list(self.tables[table].get(bucket, [-1]))
                 results[j].append(random.choice(elements))
         return results
 
@@ -191,7 +191,7 @@ class LSH:
             point_rank[point] = rank
 
         results = {i: [] for i in range(m)}
-        
+
         query_buckets, query_size, _, _, _ = self.preprocess_query(Y)
 
         for j in range(m):
@@ -199,7 +199,7 @@ class LSH:
                 # search for point with smallest rank
                 min_point = n + 1
                 min_rank = n + 1
-                for table, bucket in query_buckets[j]: 
+                for table, bucket in query_buckets[j]:
                     if bucket in self.tables[table]:
                         p = min(self.tables[table][bucket], key=lambda elem: point_rank[elem])
                         if point_rank[p] < min_rank:
@@ -210,12 +210,12 @@ class LSH:
                     results[j].append(min_point)
                     new_rank = random.randrange(min_rank, n)
 
-                    q = ranks[new_rank] 
+                    q = ranks[new_rank]
                     ranks[min_rank] = q
                     point_rank[q] = min_rank
                     ranks[new_rank] = min_point
                     point_rank[min_point] = new_rank
-                    
+
                 else:
                     results[j].append(-1)
         return results
@@ -236,7 +236,7 @@ class LSH:
         for table, bucket in buckets:
             if q in self.tables[table].get(bucket, set()):
                 cnt += 1
-        return cnt 
+        return cnt
 
     def is_candidate_valid(self, q, x):
         pass
@@ -279,7 +279,7 @@ class OneBitMinHash(LSH):
                 for hf in hash_fct:
                     h += hf._hash(x) % 2
                     h *= 2
-                self.hvs[-1].append(h) 
+                self.hvs[-1].append(h)
         return self.hvs
 
     def _get_hash_value(self, arr, idx):
@@ -300,7 +300,7 @@ class E2LSH(LSH):
         np.random.seed(seed)
         random.seed(seed)
         self.A = np.random.normal(0.0, 1.0, (d, k * L))
-        self.b = np.random.uniform(0.0, w, (1, k * L)) 
+        self.b = np.random.uniform(0.0, w, (1, k * L))
         self.w = w
         self.L = L
         self.k = k
@@ -309,7 +309,7 @@ class E2LSH(LSH):
 
     def _hash(self, X):
         #X = np.transpose(X)
-        hvs = np.matmul(X, self.A) 
+        hvs = np.matmul(X, self.A)
         hvs += self.b
         hvs /= self.w
         return np.floor(hvs).astype(np.int32)
@@ -343,14 +343,14 @@ def test_minhash():
     print(time.time() - s)
 
 def test_euclidean():
-    d = 10 
+    d = 10
     n = 10000
     m = 100
     w = 4.0
-    k = 2 
+    k = 2
     L = 3
     lsh = E2LSH(k, L, w, d)
-    X = np.random.normal(0.0, 1.0, (d, n))    
+    X = np.random.normal(0.0, 1.0, (d, n))
     lsh.preprocess(X)
     Y = np.random.normal(0.0, 1.0, (d, m))
     s = time.time()
