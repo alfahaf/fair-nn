@@ -122,6 +122,7 @@ class LSH:
         results = {i: [] for i in range(len(Y))}
 
         for j in range(len(Y)):
+            cache = {}
             for _ in range(query_size[j] * runs):
                 if bucket_sizes[j] == 0:
                     results[j].append(-1)
@@ -131,7 +132,9 @@ class LSH:
                     pos = bisect_right(prefix_sums[j], i)
                     table, bucket = query_buckets[j][pos]
                     p = random.choice(list(self.tables[table][bucket]))
-                    D = self.approx_degree(query_buckets[j], p)
+                    if p not in cache:
+                        cache[p] = self.approx_degree(query_buckets[j], p)
+                    D = cache[p]
                     if random.randint(1, D) == D: # output with probability 1/D
                         results[j].append(p)
                         break
