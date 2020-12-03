@@ -133,7 +133,7 @@ class LSH:
                     table, bucket = query_buckets[j][pos]
                     p = random.choice(list(self.tables[table][bucket]))
                     # discard not within distance threshold 
-                    if not self.is_candidate_valid(Y[j], X[p]):
+                    if not self.is_candidate_valid(Y[j], self.X[p]):
                         continue
                     if p not in cache:
                         cache[p] = int(np.median([self.approx_degree(query_buckets[j], p) for _ in range(20)]))
