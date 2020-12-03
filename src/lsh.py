@@ -132,6 +132,9 @@ class LSH:
                     pos = bisect_right(prefix_sums[j], i)
                     table, bucket = query_buckets[j][pos]
                     p = random.choice(list(self.tables[table][bucket]))
+                    # discard not within distance threshold 
+                    if not self.is_candidate_valid(Y[j], X[p]):
+                        continue
                     if p not in cache:
                         cache[p] = self.approx_degree(query_buckets[j], p)
                     D = cache[p]
