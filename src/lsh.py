@@ -136,7 +136,7 @@ class LSH:
                     if not self.is_candidate_valid(Y[j], X[p]):
                         continue
                     if p not in cache:
-                        cache[p] = self.approx_degree(query_buckets[j], p)
+                        cache[p] = int(np.median([self.approx_degree(query_buckets[j], p) for _ in range(20)]))
                     D = cache[p]
                     if random.randint(1, D) == D: # output with probability 1/D
                         results[j].append(p)
@@ -157,7 +157,7 @@ class LSH:
             point_rank[point] = rank
 
         results = {i: [] for i in range(m)}
-        
+
         query_buckets, query_size, query_results, _, _ = self.preprocess_query(Y)
 
         for j in range(m):
@@ -170,7 +170,7 @@ class LSH:
                 results[j].append(point)
 
                 new_rank = random.randrange(rank, n)
-                q = ranks[new_rank] 
+                q = ranks[new_rank]
                 ranks[rank] = q
                 ranks[new_rank] = point
                 point_rank[q] = rank
