@@ -48,13 +48,18 @@ if __name__ == "__main__":
         action='store_true',
     )
 
+    parser.add_argument(
+        '--validate',
+        action='store_true',
+    )
+
     args = parser.parse_args()
 
     data, queries, ground_truth, attrs = get_dataset(args.dataset)
 
     lsh = LSHBuilder.build(len(data[0]), args.distance_threshold,
-        args.k, args.L, {"type": args.method, "w": args.w}, False)
-    
+        args.k, args.L, {"type": args.method, "w": args.w}, args.validate)
+
     print("Building index...")
     lsh.preprocess(data)
 
@@ -70,8 +75,8 @@ if __name__ == "__main__":
         res = LSHBuilder.invoke(lsh, method, queries, args.runs)
         print(f"Run finished in {time.time() - start}s.")
 
-        res_fn = get_result_fn(args.dataset, 
-            args.method, method, repr(lsh)) 
+        res_fn = get_result_fn(args.dataset,
+            args.method, method, repr(lsh))
 
         res_dict = {
             "name": str(lsh),
