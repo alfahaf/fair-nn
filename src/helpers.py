@@ -1,4 +1,4 @@
-import os 
+import os
 import pickle
 
 def get_result_fn(dataset, lsh, query_type, rep):
@@ -15,13 +15,11 @@ def load_dataset_results(dataset):
             except:
                 pass
 
-def load_all_results(): 
-    datasets = [d for d in os.listdir("results") if 
+def load_all_results():
+    datasets = [d for d in os.listdir("results") if
         os.path.isdir(os.path.join("results", d))]
-    res = []
     for dataset in datasets:
-        res.extend(load_dataset_results(dataset))
-    return res
+        yield from load_dataset_results(dataset)
 
 if __name__ == "__main__":
     print(load_all_results())

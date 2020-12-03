@@ -20,4 +20,4 @@ if __name__ == "__main__":
         tvd = total_variation_dist(get_query_prob(result),
                                    result_prob(result["res"]))
         print(f"{ds},{k},{L},{method},\"{result['name']}\", {tvd}, {numpy.mean(1/q)}")
-            
+
