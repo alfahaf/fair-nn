@@ -1,0 +1,426 @@
+dataset,k,L,method,params,tvd,outputsize
+lastfm,10,100,opt,"OneBitMinHash(k=10, L=100)", 0.01259396353934692, 281.4
+lastfm,10,200,opt,"OneBitMinHash(k=10, L=200)", 0.012616870526473098, 496.28
+lastfm,11,100,opt,"OneBitMinHash(k=11, L=100)", 0.012370415639808818, 155.14
+lastfm,10,500,opt,"OneBitMinHash(k=10, L=500)", 0.012575029850505747, 922.92
+lastfm,12,100,opt,"OneBitMinHash(k=12, L=100)", 0.012451747909893422, 93.7
+lastfm,11,500,opt,"OneBitMinHash(k=11, L=500)", 0.012660175454895284, 592.0
+lastfm,12,500,opt,"OneBitMinHash(k=12, L=500)", 0.012528437667523772, 375.2
+lastfm,11,200,opt,"OneBitMinHash(k=11, L=200)", 0.012722416959534757, 300.76
+lastfm,12,200,opt,"OneBitMinHash(k=12, L=200)", 0.012608274417561738, 183.24
+lastfm,10,100,approx_degree,"OneBitMinHash(k=10, L=100)", 0.25960476916158726, 281.4
+lastfm,10,200,approx_degree,"OneBitMinHash(k=10, L=200)", 0.27122445785655236, 496.28
+lastfm,11,100,approx_degree,"OneBitMinHash(k=11, L=100)", 0.24627920701224137, 155.14
+lastfm,10,500,approx_degree,"OneBitMinHash(k=10, L=500)", 0.2868541662456742, 922.92
+lastfm,12,100,approx_degree,"OneBitMinHash(k=12, L=100)", 0.25499482593709877, 93.7
+lastfm,11,500,approx_degree,"OneBitMinHash(k=11, L=500)", 0.2744032877253965, 592.0
+lastfm,12,500,approx_degree,"OneBitMinHash(k=12, L=500)", 0.2705598242674762, 375.2
+lastfm,11,200,approx_degree,"OneBitMinHash(k=11, L=200)", 0.261600603945418, 300.76
+lastfm,12,200,approx_degree,"OneBitMinHash(k=12, L=200)", 0.25912935684939487, 183.24
+lastfm,10,100,rank,"OneBitMinHash(k=10, L=100)", 0.012649587869251242, 281.4
+lastfm,10,200,rank,"OneBitMinHash(k=10, L=200)", 0.0125584465358685, 496.28
+lastfm,11,100,rank,"OneBitMinHash(k=11, L=100)", 0.012625186829234138, 155.14
+lastfm,10,500,rank,"OneBitMinHash(k=10, L=500)", 0.012568464015846194, 922.92
+lastfm,12,100,rank,"OneBitMinHash(k=12, L=100)", 0.012589718771625655, 93.7
+lastfm,11,500,rank,"OneBitMinHash(k=11, L=500)", 0.01257399369187302, 592.0
+lastfm,12,500,rank,"OneBitMinHash(k=12, L=500)", 0.012599001285104456, 375.2
+lastfm,11,200,rank,"OneBitMinHash(k=11, L=200)", 0.012735571238456932, 300.76
+lastfm,12,200,rank,"OneBitMinHash(k=12, L=200)", 0.01260973275107766, 183.24
+lastfm,10,100,weighted_uniform,"OneBitMinHash(k=10, L=100)", 0.13172800981506444, 281.4
+lastfm,10,200,weighted_uniform,"OneBitMinHash(k=10, L=200)", 0.19804668428008831, 496.28
+lastfm,11,100,weighted_uniform,"OneBitMinHash(k=11, L=100)", 0.08605518574005798, 155.14
+lastfm,10,500,weighted_uniform,"OneBitMinHash(k=10, L=500)", 0.2714994924273089, 922.92
+lastfm,12,100,weighted_uniform,"OneBitMinHash(k=12, L=100)", 0.07150939477301527, 93.7
+lastfm,11,500,weighted_uniform,"OneBitMinHash(k=11, L=500)", 0.23551051244349197, 592.0
+lastfm,12,500,weighted_uniform,"OneBitMinHash(k=12, L=500)", 0.19678514833311098, 375.2
+lastfm,11,200,weighted_uniform,"OneBitMinHash(k=11, L=200)", 0.1549384592323511, 300.76
+lastfm,12,200,weighted_uniform,"OneBitMinHash(k=12, L=200)", 0.11986719256227094, 183.24
+lastfm,10,100,uniform,"OneBitMinHash(k=10, L=100)", 0.2854963820938252, 281.4
+lastfm,10,200,uniform,"OneBitMinHash(k=10, L=200)", 0.29334847012411513, 496.28
+lastfm,11,100,uniform,"OneBitMinHash(k=11, L=100)", 0.26683997276398663, 155.14
+lastfm,10,500,uniform,"OneBitMinHash(k=10, L=500)", 0.31156126382572485, 922.92
+lastfm,12,100,uniform,"OneBitMinHash(k=12, L=100)", 0.262150089740569, 93.7
+lastfm,11,500,uniform,"OneBitMinHash(k=11, L=500)", 0.3011334932945917, 592.0
+lastfm,12,500,uniform,"OneBitMinHash(k=12, L=500)", 0.2737031126703935, 375.2
+lastfm,11,200,uniform,"OneBitMinHash(k=11, L=200)", 0.2783242923212211, 300.76
+lastfm,12,200,uniform,"OneBitMinHash(k=12, L=200)", 0.2663595441047675, 183.24
+mnist-784-euclidean,8,500,opt,"E2LSH(k=8, L=500, w=1500)", 0.012575761526047032, 215.28
+mnist-784-euclidean,12,500,opt,"E2LSH(k=12, L=500, w=1500)", 0.010691130392156866, 22.78
+mnist-784-euclidean,12,200,opt,"E2LSH(k=12, L=200, w=1500)", 0.01150454769371142, 11.78
+mnist-784-euclidean,14,500,opt,"E2LSH(k=14, L=500, w=1500)", 0.011715121443808032, 12.72
+mnist-784-euclidean,12,1000,opt,"E2LSH(k=12, L=1000, w=1500)", 0.01141636380226577, 34.44
+mnist-784-euclidean,10,500,opt,"E2LSH(k=10, L=500, w=1500)", 0.012078906981886487, 49.48
+mnist-784-euclidean,14,100,opt,"E2LSH(k=14, L=100, w=1500)", 0.010579428571428568, 5.36
+mnist-784-euclidean,10,100,opt,"E2LSH(k=10, L=100, w=1500)", 0.011222174477269718, 19.36
+mnist-784-euclidean,12,100,opt,"E2LSH(k=12, L=100, w=1500)", 0.012273180952380952, 10.14
+mnist-784-euclidean,14,200,opt,"E2LSH(k=14, L=200, w=1500)", 0.011018814585483316, 8.08
+mnist-784-euclidean,8,1000,opt,"E2LSH(k=8, L=1000, w=1500)", 0.012493619379951462, 339.5
+mnist-784-euclidean,8,100,opt,"E2LSH(k=8, L=100, w=1500)", 0.012408533918609427, 63.0
+mnist-784-euclidean,14,1000,opt,"E2LSH(k=14, L=1000, w=1500)", 0.010872506986186107, 14.82
+mnist-784-euclidean,10,1000,opt,"E2LSH(k=10, L=1000, w=1500)", 0.012539525396909992, 86.76
+mnist-784-euclidean,8,200,opt,"E2LSH(k=8, L=200, w=1500)", 0.012361808362667578, 104.06
+mnist-784-euclidean,10,200,opt,"E2LSH(k=10, L=200, w=1500)", 0.01224204520300369, 29.18
+mnist-784-euclidean,8,500,approx_degree,"E2LSH(k=8, L=500, w=1500)", 0.2571496383605018, 215.28
+mnist-784-euclidean,12,500,approx_degree,"E2LSH(k=12, L=500, w=1500)", 0.13825569603174603, 22.78
+mnist-784-euclidean,12,200,approx_degree,"E2LSH(k=12, L=200, w=1500)", 0.09121308159550878, 11.78
+mnist-784-euclidean,14,500,approx_degree,"E2LSH(k=14, L=500, w=1500)", 0.07603493097632417, 12.72
+mnist-784-euclidean,12,1000,approx_degree,"E2LSH(k=12, L=1000, w=1500)", 0.14745607881804976, 34.44
+mnist-784-euclidean,10,500,approx_degree,"E2LSH(k=10, L=500, w=1500)", 0.2155643848481963, 49.48
+mnist-784-euclidean,14,100,approx_degree,"E2LSH(k=14, L=100, w=1500)", 0.04866590476190475, 5.36
+mnist-784-euclidean,10,100,approx_degree,"E2LSH(k=10, L=100, w=1500)", 0.13321560844109648, 19.36
+mnist-784-euclidean,12,100,approx_degree,"E2LSH(k=12, L=100, w=1500)", 0.09763806507936508, 10.14
+mnist-784-euclidean,14,200,approx_degree,"E2LSH(k=14, L=200, w=1500)", 0.07202979824561404, 8.08
+mnist-784-euclidean,8,1000,approx_degree,"E2LSH(k=8, L=1000, w=1500)", 0.2653097328962244, 339.5
+mnist-784-euclidean,8,100,approx_degree,"E2LSH(k=8, L=100, w=1500)", 0.22965890587056048, 63.0
+mnist-784-euclidean,14,1000,approx_degree,"E2LSH(k=14, L=1000, w=1500)", 0.08729945337148347, 14.82
+mnist-784-euclidean,10,1000,approx_degree,"E2LSH(k=10, L=1000, w=1500)", 0.24173918671608333, 86.76
+mnist-784-euclidean,8,200,approx_degree,"E2LSH(k=8, L=200, w=1500)", 0.2517926480705583, 104.06
+mnist-784-euclidean,10,200,approx_degree,"E2LSH(k=10, L=200, w=1500)", 0.16058115676648815, 29.18
+mnist-784-euclidean,8,500,rank,"E2LSH(k=8, L=500, w=1500)", 0.012758596424324474, 215.28
+mnist-784-euclidean,12,500,rank,"E2LSH(k=12, L=500, w=1500)", 0.011734082446311862, 22.78
+mnist-784-euclidean,12,200,rank,"E2LSH(k=12, L=200, w=1500)", 0.010397674483343994, 11.78
+mnist-784-euclidean,14,500,rank,"E2LSH(k=14, L=500, w=1500)", 0.012516318198722612, 12.72
+mnist-784-euclidean,12,1000,rank,"E2LSH(k=12, L=1000, w=1500)", 0.01137361125450551, 34.44
+mnist-784-euclidean,10,500,rank,"E2LSH(k=10, L=500, w=1500)", 0.011888457858963647, 49.48
+mnist-784-euclidean,14,100,rank,"E2LSH(k=14, L=100, w=1500)", 0.011081190476190477, 5.36
+mnist-784-euclidean,10,100,rank,"E2LSH(k=10, L=100, w=1500)", 0.011841488502222408, 19.36
+mnist-784-euclidean,12,100,rank,"E2LSH(k=12, L=100, w=1500)", 0.011225426190476194, 10.14
+mnist-784-euclidean,14,200,rank,"E2LSH(k=14, L=200, w=1500)", 0.011591787581699346, 8.08
+mnist-784-euclidean,8,1000,rank,"E2LSH(k=8, L=1000, w=1500)", 0.012525471991128747, 339.5
+mnist-784-euclidean,8,100,rank,"E2LSH(k=8, L=100, w=1500)", 0.012425125930393553, 63.0
+mnist-784-euclidean,14,1000,rank,"E2LSH(k=14, L=1000, w=1500)", 0.010876906424331954, 14.82
+mnist-784-euclidean,10,1000,rank,"E2LSH(k=10, L=1000, w=1500)", 0.012650469951636888, 86.76
+mnist-784-euclidean,8,200,rank,"E2LSH(k=8, L=200, w=1500)", 0.012372302837237675, 104.06
+mnist-784-euclidean,10,200,rank,"E2LSH(k=10, L=200, w=1500)", 0.012344725840394729, 29.18
+mnist-784-euclidean,8,500,weighted_uniform,"E2LSH(k=8, L=500, w=1500)", 0.8330257312910904, 215.28
+mnist-784-euclidean,12,500,weighted_uniform,"E2LSH(k=12, L=500, w=1500)", 0.44183101690009335, 22.78
+mnist-784-euclidean,12,200,weighted_uniform,"E2LSH(k=12, L=200, w=1500)", 0.30033885540030875, 11.78
+mnist-784-euclidean,14,500,weighted_uniform,"E2LSH(k=14, L=500, w=1500)", 0.28356041241441077, 12.72
+mnist-784-euclidean,12,1000,weighted_uniform,"E2LSH(k=12, L=1000, w=1500)", 0.5262586348942072, 34.44
+mnist-784-euclidean,10,500,weighted_uniform,"E2LSH(k=10, L=500, w=1500)", 0.7226422432551115, 49.48
+mnist-784-euclidean,14,100,weighted_uniform,"E2LSH(k=14, L=100, w=1500)", 0.14138133333333333, 5.36
+mnist-784-euclidean,10,100,weighted_uniform,"E2LSH(k=10, L=100, w=1500)", 0.43561752438728185, 19.36
+mnist-784-euclidean,12,100,weighted_uniform,"E2LSH(k=12, L=100, w=1500)", 0.276935126984127, 10.14
+mnist-784-euclidean,14,200,weighted_uniform,"E2LSH(k=14, L=200, w=1500)", 0.2589874155486756, 8.08
+mnist-784-euclidean,8,1000,weighted_uniform,"E2LSH(k=8, L=1000, w=1500)", 0.8511840998484099, 339.5
+mnist-784-euclidean,8,100,weighted_uniform,"E2LSH(k=8, L=100, w=1500)", 0.7515728014800673, 63.0
+mnist-784-euclidean,14,1000,weighted_uniform,"E2LSH(k=14, L=1000, w=1500)", 0.3081697896680268, 14.82
+mnist-784-euclidean,10,1000,weighted_uniform,"E2LSH(k=10, L=1000, w=1500)", 0.8529673901292018, 86.76
+mnist-784-euclidean,8,200,weighted_uniform,"E2LSH(k=8, L=200, w=1500)", 0.7930162324864277, 104.06
+mnist-784-euclidean,10,200,weighted_uniform,"E2LSH(k=10, L=200, w=1500)", 0.5159127650286792, 29.18
+mnist-784-euclidean,8,500,uniform,"E2LSH(k=8, L=500, w=1500)", 0.8877085556040334, 215.28
+mnist-784-euclidean,12,500,uniform,"E2LSH(k=12, L=500, w=1500)", 0.45064297343604104, 22.78
+mnist-784-euclidean,12,200,uniform,"E2LSH(k=12, L=200, w=1500)", 0.30988118072180965, 11.78
+mnist-784-euclidean,14,500,uniform,"E2LSH(k=14, L=500, w=1500)", 0.28698616163112495, 12.72
+mnist-784-euclidean,12,1000,uniform,"E2LSH(k=12, L=1000, w=1500)", 0.5348174900150869, 34.44
+mnist-784-euclidean,10,500,uniform,"E2LSH(k=10, L=500, w=1500)", 0.743347997374716, 49.48
+mnist-784-euclidean,14,100,uniform,"E2LSH(k=14, L=100, w=1500)", 0.14375566666666667, 5.36
+mnist-784-euclidean,10,100,uniform,"E2LSH(k=10, L=100, w=1500)", 0.4586855330790061, 19.36
+mnist-784-euclidean,12,100,uniform,"E2LSH(k=12, L=100, w=1500)", 0.2863176007936508, 10.14
+mnist-784-euclidean,14,200,uniform,"E2LSH(k=14, L=200, w=1500)", 0.2625597316821466, 8.08
+mnist-784-euclidean,8,1000,uniform,"E2LSH(k=8, L=1000, w=1500)", 0.9023286349469981, 339.5
+mnist-784-euclidean,8,100,uniform,"E2LSH(k=8, L=100, w=1500)", 0.8153107345563275, 63.0
+mnist-784-euclidean,14,1000,uniform,"E2LSH(k=14, L=1000, w=1500)", 0.3127693614070377, 14.82
+mnist-784-euclidean,10,1000,uniform,"E2LSH(k=10, L=1000, w=1500)", 0.8747525267752175, 86.76
+mnist-784-euclidean,8,200,uniform,"E2LSH(k=8, L=200, w=1500)", 0.8488647689130758, 104.06
+mnist-784-euclidean,10,200,uniform,"E2LSH(k=10, L=200, w=1500)", 0.5381911158917161, 29.18
+glove-100-angular,12,200,opt,"E2LSH(k=12, L=200, w=4)", 0.00045999999999999985, 0.3
+glove-100-angular,10,500,opt,"E2LSH(k=10, L=500, w=4)", 0.01037187642106997, 6.4
+glove-100-angular,10,200,opt,"E2LSH(k=10, L=200, w=4)", 0.005008666666666665, 2.36
+glove-100-angular,13,500,opt,"E2LSH(k=13, L=500, w=4)", 0.0004999999999999999, 0.32
+glove-100-angular,11,500,opt,"E2LSH(k=11, L=500, w=4)", 0.005771333333333333, 2.04
+glove-100-angular,13,200,opt,"E2LSH(k=13, L=200, w=4)", 0.00025499999999999996, 0.12
+glove-100-angular,14,100,opt,"E2LSH(k=14, L=100, w=4)", 0.0, 0.0
+glove-100-angular,12,100,opt,"E2LSH(k=12, L=100, w=4)", 0.0004933333333333334, 0.18
+glove-100-angular,12,500,opt,"E2LSH(k=12, L=500, w=4)", 0.0007827272727272719, 0.62
+glove-100-angular,14,500,opt,"E2LSH(k=14, L=500, w=4)", 0.00024499999999999994, 0.16
+glove-100-angular,15,200,opt,"E2LSH(k=15, L=200, w=4)", 0.0003699999999999998, 0.06
+glove-100-angular,11,200,opt,"E2LSH(k=11, L=200, w=4)", 0.001413333333333332, 0.86
+glove-100-angular,13,100,opt,"E2LSH(k=13, L=100, w=4)", 0.00028000000000000025, 0.12
+glove-100-angular,10,100,opt,"E2LSH(k=10, L=100, w=4)", 0.003204083333333331, 1.26
+glove-100-angular,11,100,opt,"E2LSH(k=11, L=100, w=4)", 0.0012466666666666665, 0.5
+glove-100-angular,15,100,opt,"E2LSH(k=15, L=100, w=4)", 0.0, 0.02
+glove-100-angular,15,500,opt,"E2LSH(k=15, L=500, w=4)", 0.00033000000000000027, 0.14
+glove-100-angular,14,200,opt,"E2LSH(k=14, L=200, w=4)", 0.00024800000000000044, 0.1
+glove-100-angular,12,200,approx_degree,"E2LSH(k=12, L=200, w=4)", 0.009435, 0.3
+glove-100-angular,10,500,approx_degree,"E2LSH(k=10, L=500, w=4)", 0.21481682732679505, 6.4
+glove-100-angular,10,200,approx_degree,"E2LSH(k=10, L=200, w=4)", 0.11016300000000001, 2.36
+glove-100-angular,13,500,approx_degree,"E2LSH(k=13, L=500, w=4)", 0.01322, 0.32
+glove-100-angular,11,500,approx_degree,"E2LSH(k=11, L=500, w=4)", 0.09801066666666668, 2.04
+glove-100-angular,13,200,approx_degree,"E2LSH(k=13, L=200, w=4)", 0.004370000000000001, 0.12
+glove-100-angular,14,100,approx_degree,"E2LSH(k=14, L=100, w=4)", 0.0, 0.0
+glove-100-angular,12,100,approx_degree,"E2LSH(k=12, L=100, w=4)", 0.00388, 0.18
+glove-100-angular,12,500,approx_degree,"E2LSH(k=12, L=500, w=4)", 0.03225363636363636, 0.62
+glove-100-angular,14,500,approx_degree,"E2LSH(k=14, L=500, w=4)", 0.009145, 0.16
+glove-100-angular,15,200,approx_degree,"E2LSH(k=15, L=200, w=4)", 0.00512, 0.06
+glove-100-angular,11,200,approx_degree,"E2LSH(k=11, L=200, w=4)", 0.03034833333333333, 0.86
+glove-100-angular,13,100,approx_degree,"E2LSH(k=13, L=100, w=4)", 0.006533333333333333, 0.12
+glove-100-angular,10,100,approx_degree,"E2LSH(k=10, L=100, w=4)", 0.0662065, 1.26
+glove-100-angular,11,100,approx_degree,"E2LSH(k=11, L=100, w=4)", 0.031033333333333336, 0.5
+glove-100-angular,15,100,approx_degree,"E2LSH(k=15, L=100, w=4)", 0.0, 0.02
+glove-100-angular,15,500,approx_degree,"E2LSH(k=15, L=500, w=4)", 0.00714, 0.14
+glove-100-angular,14,200,approx_degree,"E2LSH(k=14, L=200, w=4)", 0.01, 0.1
+glove-100-angular,12,200,rank,"E2LSH(k=12, L=200, w=4)", 0.00019999999999999963, 0.3
+glove-100-angular,10,500,rank,"E2LSH(k=10, L=500, w=4)", 0.010977116306632435, 6.4
+glove-100-angular,10,200,rank,"E2LSH(k=10, L=200, w=4)", 0.005597666666666663, 2.36
+glove-100-angular,13,500,rank,"E2LSH(k=13, L=500, w=4)", 0.00036666666666666624, 0.32
+glove-100-angular,11,500,rank,"E2LSH(k=11, L=500, w=4)", 0.004994761904761904, 2.04
+glove-100-angular,13,200,rank,"E2LSH(k=13, L=200, w=4)", 0.00028000000000000025, 0.12
+glove-100-angular,14,100,rank,"E2LSH(k=14, L=100, w=4)", 0.0, 0.0
+glove-100-angular,12,100,rank,"E2LSH(k=12, L=100, w=4)", 0.0004199999999999998, 0.18
+glove-100-angular,12,500,rank,"E2LSH(k=12, L=500, w=4)", 0.0015299999999999997, 0.62
+glove-100-angular,14,500,rank,"E2LSH(k=14, L=500, w=4)", 9.49999999999998e-05, 0.16
+glove-100-angular,15,200,rank,"E2LSH(k=15, L=200, w=4)", 0.00010000000000000009, 0.06
+glove-100-angular,11,200,rank,"E2LSH(k=11, L=200, w=4)", 0.0013044444444444442, 0.86
+glove-100-angular,13,100,rank,"E2LSH(k=13, L=100, w=4)", 0.00026666666666666673, 0.12
+glove-100-angular,10,100,rank,"E2LSH(k=10, L=100, w=4)", 0.002201583333333334, 1.26
+glove-100-angular,11,100,rank,"E2LSH(k=11, L=100, w=4)", 0.0011666666666666663, 0.5
+glove-100-angular,15,100,rank,"E2LSH(k=15, L=100, w=4)", 0.0, 0.02
+glove-100-angular,15,500,rank,"E2LSH(k=15, L=500, w=4)", 0.0001633333333333334, 0.14
+glove-100-angular,14,200,rank,"E2LSH(k=14, L=200, w=4)", 0.00023199999999999997, 0.1
+glove-100-angular,12,200,weighted_uniform,"E2LSH(k=12, L=200, w=4)", 0.006544999999999999, 0.3
+glove-100-angular,10,500,weighted_uniform,"E2LSH(k=10, L=500, w=4)", 0.02355320842956327, 6.4
+glove-100-angular,10,200,weighted_uniform,"E2LSH(k=10, L=200, w=4)", 0.013699999999999999, 2.36
+glove-100-angular,13,500,weighted_uniform,"E2LSH(k=13, L=500, w=4)", 0.006653333333333333, 0.32
+glove-100-angular,11,500,weighted_uniform,"E2LSH(k=11, L=500, w=4)", 0.019260952380952375, 2.04
+glove-100-angular,13,200,weighted_uniform,"E2LSH(k=13, L=200, w=4)", 0.0033599999999999997, 0.12
+glove-100-angular,14,100,weighted_uniform,"E2LSH(k=14, L=100, w=4)", 0.0, 0.0
+glove-100-angular,12,100,weighted_uniform,"E2LSH(k=12, L=100, w=4)", 0.00016000000000000015, 0.18
+glove-100-angular,12,500,weighted_uniform,"E2LSH(k=12, L=500, w=4)", 0.01036363636363636, 0.62
+glove-100-angular,14,500,weighted_uniform,"E2LSH(k=14, L=500, w=4)", 0.00601, 0.16
+glove-100-angular,15,200,weighted_uniform,"E2LSH(k=15, L=200, w=4)", 0.0002200000000000002, 0.06
+glove-100-angular,11,200,weighted_uniform,"E2LSH(k=11, L=200, w=4)", 0.008828888888888886, 0.86
+glove-100-angular,13,100,weighted_uniform,"E2LSH(k=13, L=100, w=4)", 0.004466666666666667, 0.12
+glove-100-angular,10,100,weighted_uniform,"E2LSH(k=10, L=100, w=4)", 0.008093833333333333, 1.26
+glove-100-angular,11,100,weighted_uniform,"E2LSH(k=11, L=100, w=4)", 0.00861, 0.5
+glove-100-angular,15,100,weighted_uniform,"E2LSH(k=15, L=100, w=4)", 0.0, 0.02
+glove-100-angular,15,500,weighted_uniform,"E2LSH(k=15, L=500, w=4)", 0.00565, 0.14
+glove-100-angular,14,200,weighted_uniform,"E2LSH(k=14, L=200, w=4)", 0.005988, 0.1
+glove-100-angular,12,200,uniform,"E2LSH(k=12, L=200, w=4)", 0.00810111699000588, 0.3
+glove-100-angular,10,500,uniform,"E2LSH(k=10, L=500, w=4)", 0.1336621576959734, 6.4
+glove-100-angular,10,200,uniform,"E2LSH(k=10, L=200, w=4)", 0.05404737786626323, 2.36
+glove-100-angular,13,500,uniform,"E2LSH(k=13, L=500, w=4)", 0.015140726329442283, 0.32
+glove-100-angular,11,500,uniform,"E2LSH(k=11, L=500, w=4)", 0.11906028854849611, 2.04
+glove-100-angular,13,200,uniform,"E2LSH(k=13, L=200, w=4)", 0.002766990291262136, 0.12
+glove-100-angular,14,100,uniform,"E2LSH(k=14, L=100, w=4)", 0.0, 0.0
+glove-100-angular,12,100,uniform,"E2LSH(k=12, L=100, w=4)", 0.0011051693404634582, 0.18
+glove-100-angular,12,500,uniform,"E2LSH(k=12, L=500, w=4)", 0.03636831636831637, 0.62
+glove-100-angular,14,500,uniform,"E2LSH(k=14, L=500, w=4)", 0.004333333333333333, 0.16
+glove-100-angular,15,200,uniform,"E2LSH(k=15, L=200, w=4)", 0.00125, 0.06
+glove-100-angular,11,200,uniform,"E2LSH(k=11, L=200, w=4)", 0.021272526281790806, 0.86
+glove-100-angular,13,100,uniform,"E2LSH(k=13, L=100, w=4)", 0.004272844272844274, 0.12
+glove-100-angular,10,100,uniform,"E2LSH(k=10, L=100, w=4)", 0.024513879527455016, 1.26
+glove-100-angular,11,100,uniform,"E2LSH(k=11, L=100, w=4)", 0.012036049800755684, 0.5
+glove-100-angular,15,100,uniform,"E2LSH(k=15, L=100, w=4)", 0.0, 0.02
+glove-100-angular,15,500,uniform,"E2LSH(k=15, L=500, w=4)", 0.006200466200466202, 0.14
+glove-100-angular,14,200,uniform,"E2LSH(k=14, L=200, w=4)", 0.005303964757709251, 0.1
+sift-128-euclidean,12,200,opt,"E2LSH(k=12, L=200, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,14,1000,opt,"E2LSH(k=14, L=1000, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,12,1000,opt,"E2LSH(k=12, L=1000, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,13,1000,opt,"E2LSH(k=13, L=1000, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,15,1000,opt,"E2LSH(k=15, L=1000, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,10,500,opt,"E2LSH(k=10, L=500, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,11,1000,opt,"E2LSH(k=11, L=1000, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,10,200,opt,"E2LSH(k=10, L=200, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,13,500,opt,"E2LSH(k=13, L=500, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,11,500,opt,"E2LSH(k=11, L=500, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,13,200,opt,"E2LSH(k=13, L=200, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,14,100,opt,"E2LSH(k=14, L=100, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,12,100,opt,"E2LSH(k=12, L=100, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,12,500,opt,"E2LSH(k=12, L=500, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,14,500,opt,"E2LSH(k=14, L=500, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,15,200,opt,"E2LSH(k=15, L=200, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,11,200,opt,"E2LSH(k=11, L=200, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,13,100,opt,"E2LSH(k=13, L=100, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,10,100,opt,"E2LSH(k=10, L=100, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,11,100,opt,"E2LSH(k=11, L=100, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,15,100,opt,"E2LSH(k=15, L=100, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,15,500,opt,"E2LSH(k=15, L=500, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,10,1000,opt,"E2LSH(k=10, L=1000, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,14,200,opt,"E2LSH(k=14, L=200, w=4)", 0.00976683333333333, 4.26
+sift-128-euclidean,12,200,approx_degree,"E2LSH(k=12, L=200, w=4)", 0.010213214285714287, 4.26
+sift-128-euclidean,14,1000,approx_degree,"E2LSH(k=14, L=1000, w=4)", 0.010885809523809522, 4.26
+sift-128-euclidean,12,1000,approx_degree,"E2LSH(k=12, L=1000, w=4)", 0.010885809523809522, 4.26
+sift-128-euclidean,13,1000,approx_degree,"E2LSH(k=13, L=1000, w=4)", 0.010885809523809522, 4.26
+sift-128-euclidean,15,1000,approx_degree,"E2LSH(k=15, L=1000, w=4)", 0.010885809523809522, 4.26
+sift-128-euclidean,10,500,approx_degree,"E2LSH(k=10, L=500, w=4)", 0.010227571428571431, 4.26
+sift-128-euclidean,11,1000,approx_degree,"E2LSH(k=11, L=1000, w=4)", 0.010885809523809522, 4.26
+sift-128-euclidean,10,200,approx_degree,"E2LSH(k=10, L=200, w=4)", 0.010213214285714287, 4.26
+sift-128-euclidean,13,500,approx_degree,"E2LSH(k=13, L=500, w=4)", 0.010227571428571431, 4.26
+sift-128-euclidean,11,500,approx_degree,"E2LSH(k=11, L=500, w=4)", 0.010227571428571431, 4.26
+sift-128-euclidean,13,200,approx_degree,"E2LSH(k=13, L=200, w=4)", 0.010213214285714287, 4.26
+sift-128-euclidean,14,100,approx_degree,"E2LSH(k=14, L=100, w=4)", 0.010474785714285714, 4.26
+sift-128-euclidean,12,100,approx_degree,"E2LSH(k=12, L=100, w=4)", 0.010474785714285714, 4.26
+sift-128-euclidean,12,500,approx_degree,"E2LSH(k=12, L=500, w=4)", 0.010227571428571431, 4.26
+sift-128-euclidean,14,500,approx_degree,"E2LSH(k=14, L=500, w=4)", 0.010227571428571431, 4.26
+sift-128-euclidean,15,200,approx_degree,"E2LSH(k=15, L=200, w=4)", 0.010213214285714287, 4.26
+sift-128-euclidean,11,200,approx_degree,"E2LSH(k=11, L=200, w=4)", 0.010213214285714287, 4.26
+sift-128-euclidean,13,100,approx_degree,"E2LSH(k=13, L=100, w=4)", 0.010474785714285714, 4.26
+sift-128-euclidean,10,100,approx_degree,"E2LSH(k=10, L=100, w=4)", 0.010474785714285714, 4.26
+sift-128-euclidean,11,100,approx_degree,"E2LSH(k=11, L=100, w=4)", 0.010474785714285714, 4.26
+sift-128-euclidean,15,100,approx_degree,"E2LSH(k=15, L=100, w=4)", 0.010474785714285714, 4.26
+sift-128-euclidean,15,500,approx_degree,"E2LSH(k=15, L=500, w=4)", 0.010227571428571431, 4.26
+sift-128-euclidean,10,1000,approx_degree,"E2LSH(k=10, L=1000, w=4)", 0.010885809523809522, 4.26
+sift-128-euclidean,14,200,approx_degree,"E2LSH(k=14, L=200, w=4)", 0.010213214285714287, 4.26
+sift-128-euclidean,12,200,rank,"E2LSH(k=12, L=200, w=4)", 0.009520476190476194, 4.26
+sift-128-euclidean,14,1000,rank,"E2LSH(k=14, L=1000, w=4)", 0.010439476190476187, 4.26
+sift-128-euclidean,12,1000,rank,"E2LSH(k=12, L=1000, w=4)", 0.010439476190476187, 4.26
+sift-128-euclidean,13,1000,rank,"E2LSH(k=13, L=1000, w=4)", 0.010439476190476187, 4.26
+sift-128-euclidean,15,1000,rank,"E2LSH(k=15, L=1000, w=4)", 0.010439476190476187, 4.26
+sift-128-euclidean,10,500,rank,"E2LSH(k=10, L=500, w=4)", 0.009772690476190475, 4.26
+sift-128-euclidean,11,1000,rank,"E2LSH(k=11, L=1000, w=4)", 0.010439476190476187, 4.26
+sift-128-euclidean,10,200,rank,"E2LSH(k=10, L=200, w=4)", 0.009520476190476194, 4.26
+sift-128-euclidean,13,500,rank,"E2LSH(k=13, L=500, w=4)", 0.009772690476190475, 4.26
+sift-128-euclidean,11,500,rank,"E2LSH(k=11, L=500, w=4)", 0.009772690476190475, 4.26
+sift-128-euclidean,13,200,rank,"E2LSH(k=13, L=200, w=4)", 0.009520476190476194, 4.26
+sift-128-euclidean,14,100,rank,"E2LSH(k=14, L=100, w=4)", 0.009801523809523807, 4.26
+sift-128-euclidean,12,100,rank,"E2LSH(k=12, L=100, w=4)", 0.009801523809523807, 4.26
+sift-128-euclidean,12,500,rank,"E2LSH(k=12, L=500, w=4)", 0.009772690476190475, 4.26
+sift-128-euclidean,14,500,rank,"E2LSH(k=14, L=500, w=4)", 0.009772690476190475, 4.26
+sift-128-euclidean,15,200,rank,"E2LSH(k=15, L=200, w=4)", 0.009520476190476194, 4.26
+sift-128-euclidean,11,200,rank,"E2LSH(k=11, L=200, w=4)", 0.009520476190476194, 4.26
+sift-128-euclidean,13,100,rank,"E2LSH(k=13, L=100, w=4)", 0.009801523809523807, 4.26
+sift-128-euclidean,10,100,rank,"E2LSH(k=10, L=100, w=4)", 0.009801523809523807, 4.26
+sift-128-euclidean,11,100,rank,"E2LSH(k=11, L=100, w=4)", 0.009801523809523807, 4.26
+sift-128-euclidean,15,100,rank,"E2LSH(k=15, L=100, w=4)", 0.009801523809523807, 4.26
+sift-128-euclidean,15,500,rank,"E2LSH(k=15, L=500, w=4)", 0.009772690476190475, 4.26
+sift-128-euclidean,10,1000,rank,"E2LSH(k=10, L=1000, w=4)", 0.010439476190476187, 4.26
+sift-128-euclidean,14,200,rank,"E2LSH(k=14, L=200, w=4)", 0.009520476190476194, 4.26
+sift-128-euclidean,12,200,weighted_uniform,"E2LSH(k=12, L=200, w=4)", 0.01035, 4.26
+sift-128-euclidean,14,1000,weighted_uniform,"E2LSH(k=14, L=1000, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,12,1000,weighted_uniform,"E2LSH(k=12, L=1000, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,13,1000,weighted_uniform,"E2LSH(k=13, L=1000, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,15,1000,weighted_uniform,"E2LSH(k=15, L=1000, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,10,500,weighted_uniform,"E2LSH(k=10, L=500, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,11,1000,weighted_uniform,"E2LSH(k=11, L=1000, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,10,200,weighted_uniform,"E2LSH(k=10, L=200, w=4)", 0.01035, 4.26
+sift-128-euclidean,13,500,weighted_uniform,"E2LSH(k=13, L=500, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,11,500,weighted_uniform,"E2LSH(k=11, L=500, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,13,200,weighted_uniform,"E2LSH(k=13, L=200, w=4)", 0.01035, 4.26
+sift-128-euclidean,14,100,weighted_uniform,"E2LSH(k=14, L=100, w=4)", 0.01035, 4.26
+sift-128-euclidean,12,100,weighted_uniform,"E2LSH(k=12, L=100, w=4)", 0.01035, 4.26
+sift-128-euclidean,12,500,weighted_uniform,"E2LSH(k=12, L=500, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,14,500,weighted_uniform,"E2LSH(k=14, L=500, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,15,200,weighted_uniform,"E2LSH(k=15, L=200, w=4)", 0.01035, 4.26
+sift-128-euclidean,11,200,weighted_uniform,"E2LSH(k=11, L=200, w=4)", 0.01035, 4.26
+sift-128-euclidean,13,100,weighted_uniform,"E2LSH(k=13, L=100, w=4)", 0.01035, 4.26
+sift-128-euclidean,10,100,weighted_uniform,"E2LSH(k=10, L=100, w=4)", 0.01035, 4.26
+sift-128-euclidean,11,100,weighted_uniform,"E2LSH(k=11, L=100, w=4)", 0.01035, 4.26
+sift-128-euclidean,15,100,weighted_uniform,"E2LSH(k=15, L=100, w=4)", 0.01035, 4.26
+sift-128-euclidean,15,500,weighted_uniform,"E2LSH(k=15, L=500, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,10,1000,weighted_uniform,"E2LSH(k=10, L=1000, w=4)", 0.011605642857142858, 4.26
+sift-128-euclidean,14,200,weighted_uniform,"E2LSH(k=14, L=200, w=4)", 0.01035, 4.26
+sift-128-euclidean,12,200,uniform,"E2LSH(k=12, L=200, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,14,1000,uniform,"E2LSH(k=14, L=1000, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,12,1000,uniform,"E2LSH(k=12, L=1000, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,13,1000,uniform,"E2LSH(k=13, L=1000, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,15,1000,uniform,"E2LSH(k=15, L=1000, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,10,500,uniform,"E2LSH(k=10, L=500, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,11,1000,uniform,"E2LSH(k=11, L=1000, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,10,200,uniform,"E2LSH(k=10, L=200, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,13,500,uniform,"E2LSH(k=13, L=500, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,11,500,uniform,"E2LSH(k=11, L=500, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,13,200,uniform,"E2LSH(k=13, L=200, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,14,100,uniform,"E2LSH(k=14, L=100, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,12,100,uniform,"E2LSH(k=12, L=100, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,12,500,uniform,"E2LSH(k=12, L=500, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,14,500,uniform,"E2LSH(k=14, L=500, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,15,200,uniform,"E2LSH(k=15, L=200, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,11,200,uniform,"E2LSH(k=11, L=200, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,13,100,uniform,"E2LSH(k=13, L=100, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,10,100,uniform,"E2LSH(k=10, L=100, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,11,100,uniform,"E2LSH(k=11, L=100, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,15,100,uniform,"E2LSH(k=15, L=100, w=4)", 0.010185904761904764, 4.26
+sift-128-euclidean,15,500,uniform,"E2LSH(k=15, L=500, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,10,1000,uniform,"E2LSH(k=10, L=1000, w=4)", 0.010499333333333336, 4.26
+sift-128-euclidean,14,200,uniform,"E2LSH(k=14, L=200, w=4)", 0.010185904761904764, 4.26
+movielens,13,100,opt,"OneBitMinHash(k=13, L=100)", 0.012698594527584421, 93.54
+movielens,10,100,opt,"OneBitMinHash(k=10, L=100)", 0.012581923439702167, 468.54
+movielens,10,200,opt,"OneBitMinHash(k=10, L=200)", 0.012534557847991557, 828.48
+movielens,11,100,opt,"OneBitMinHash(k=11, L=100)", 0.012513832250073843, 305.82
+movielens,15,500,opt,"OneBitMinHash(k=15, L=500)", 0.012629757132375628, 156.08
+movielens,15,100,opt,"OneBitMinHash(k=15, L=100)", 0.012735468697970449, 37.98
+movielens,14,200,opt,"OneBitMinHash(k=14, L=200)", 0.012464789661524554, 111.42
+movielens,10,500,opt,"OneBitMinHash(k=10, L=500)", 0.012627345542997138, 1419.06
+movielens,12,100,opt,"OneBitMinHash(k=12, L=100)", 0.01265561317259285, 166.52
+movielens,13,500,opt,"OneBitMinHash(k=13, L=500)", 0.012464058292101394, 441.72
+movielens,14,500,opt,"OneBitMinHash(k=14, L=500)", 0.01256729805292412, 272.0
+movielens,11,500,opt,"OneBitMinHash(k=11, L=500)", 0.01266617704759291, 1058.72
+movielens,14,100,opt,"OneBitMinHash(k=14, L=100)", 0.012627987282448181, 55.76
+movielens,15,200,opt,"OneBitMinHash(k=15, L=200)", 0.012482612025230164, 65.84
+movielens,12,500,opt,"OneBitMinHash(k=12, L=500)", 0.012606878358824538, 700.88
+movielens,13,200,opt,"OneBitMinHash(k=13, L=200)", 0.012472118713332632, 191.74
+movielens,11,200,opt,"OneBitMinHash(k=11, L=200)", 0.012594581984947435, 557.84
+movielens,12,200,opt,"OneBitMinHash(k=12, L=200)", 0.012727380278401448, 309.94
+movielens,13,100,approx_degree,"OneBitMinHash(k=13, L=100)", 0.2470983304220381, 93.54
+movielens,10,100,approx_degree,"OneBitMinHash(k=10, L=100)", 0.2586673059531549, 468.54
+movielens,10,200,approx_degree,"OneBitMinHash(k=10, L=200)", 0.2697252932217957, 828.48
+movielens,11,100,approx_degree,"OneBitMinHash(k=11, L=100)", 0.25347682071197847, 305.82
+movielens,15,500,approx_degree,"OneBitMinHash(k=15, L=500)", 0.2537919779893625, 156.08
+movielens,15,100,approx_degree,"OneBitMinHash(k=15, L=100)", 0.2364961553838349, 37.98
+movielens,14,200,approx_degree,"OneBitMinHash(k=14, L=200)", 0.24283983855333818, 111.42
+movielens,10,500,approx_degree,"OneBitMinHash(k=10, L=500)", 0.30153678781646664, 1419.06
+movielens,12,100,approx_degree,"OneBitMinHash(k=12, L=100)", 0.25130768440591944, 166.52
+movielens,13,500,approx_degree,"OneBitMinHash(k=13, L=500)", 0.260359409892226, 441.72
+movielens,14,500,approx_degree,"OneBitMinHash(k=14, L=500)", 0.2532962758088307, 272.0
+movielens,11,500,approx_degree,"OneBitMinHash(k=11, L=500)", 0.2833564278612456, 1058.72
+movielens,14,100,approx_degree,"OneBitMinHash(k=14, L=100)", 0.2527715086912764, 55.76
+movielens,15,200,approx_degree,"OneBitMinHash(k=15, L=200)", 0.23341582771640848, 65.84
+movielens,12,500,approx_degree,"OneBitMinHash(k=12, L=500)", 0.26834761192294737, 700.88
+movielens,13,200,approx_degree,"OneBitMinHash(k=13, L=200)", 0.2521154678899923, 191.74
+movielens,11,200,approx_degree,"OneBitMinHash(k=11, L=200)", 0.2616993935739986, 557.84
+movielens,12,200,approx_degree,"OneBitMinHash(k=12, L=200)", 0.2533561218263724, 309.94
+movielens,13,100,rank,"OneBitMinHash(k=13, L=100)", 0.012636575106124598, 93.54
+movielens,10,100,rank,"OneBitMinHash(k=10, L=100)", 0.012584083857459063, 468.54
+movielens,10,200,rank,"OneBitMinHash(k=10, L=200)", 0.012610321462471086, 828.48
+movielens,11,100,rank,"OneBitMinHash(k=11, L=100)", 0.012540516829243523, 305.82
+movielens,15,500,rank,"OneBitMinHash(k=15, L=500)", 0.012721149902124867, 156.08
+movielens,15,100,rank,"OneBitMinHash(k=15, L=100)", 0.012275868009804458, 37.98
+movielens,14,200,rank,"OneBitMinHash(k=14, L=200)", 0.012664175397658496, 111.42
+movielens,10,500,rank,"OneBitMinHash(k=10, L=500)", 0.012671725499066668, 1419.06
+movielens,12,100,rank,"OneBitMinHash(k=12, L=100)", 0.012540904138986411, 166.52
+movielens,13,500,rank,"OneBitMinHash(k=13, L=500)", 0.012732269900327336, 441.72
+movielens,14,500,rank,"OneBitMinHash(k=14, L=500)", 0.012576085957873955, 272.0
+movielens,11,500,rank,"OneBitMinHash(k=11, L=500)", 0.012616633287394562, 1058.72
+movielens,14,100,rank,"OneBitMinHash(k=14, L=100)", 0.012633598330532838, 55.76
+movielens,15,200,rank,"OneBitMinHash(k=15, L=200)", 0.012327859942832026, 65.84
+movielens,12,500,rank,"OneBitMinHash(k=12, L=500)", 0.012624141751539832, 700.88
+movielens,13,200,rank,"OneBitMinHash(k=13, L=200)", 0.012603087152139019, 191.74
+movielens,11,200,rank,"OneBitMinHash(k=11, L=200)", 0.012645932826530891, 557.84
+movielens,12,200,rank,"OneBitMinHash(k=12, L=200)", 0.01258734809372949, 309.94
+movielens,13,100,weighted_uniform,"OneBitMinHash(k=13, L=100)", 0.03426861098031716, 93.54
+movielens,10,100,weighted_uniform,"OneBitMinHash(k=10, L=100)", 0.12237054227569295, 468.54
+movielens,10,200,weighted_uniform,"OneBitMinHash(k=10, L=200)", 0.19443919261876672, 828.48
+movielens,11,100,weighted_uniform,"OneBitMinHash(k=11, L=100)", 0.09230733325884505, 305.82
+movielens,15,500,weighted_uniform,"OneBitMinHash(k=15, L=500)", 0.06298978472864153, 156.08
+movielens,15,100,weighted_uniform,"OneBitMinHash(k=15, L=100)", 0.0200015208770129, 37.98
+movielens,14,200,weighted_uniform,"OneBitMinHash(k=14, L=200)", 0.041908603583698786, 111.42
+movielens,10,500,weighted_uniform,"OneBitMinHash(k=10, L=500)", 0.23410200907374043, 1419.06
+movielens,12,100,weighted_uniform,"OneBitMinHash(k=12, L=100)", 0.04977352921247784, 166.52
+movielens,13,500,weighted_uniform,"OneBitMinHash(k=13, L=500)", 0.1377602906316243, 441.72
+movielens,14,500,weighted_uniform,"OneBitMinHash(k=14, L=500)", 0.0934056899219618, 272.0
+movielens,11,500,weighted_uniform,"OneBitMinHash(k=11, L=500)", 0.22288198861965017, 1058.72
+movielens,14,100,weighted_uniform,"OneBitMinHash(k=14, L=100)", 0.027863036112693848, 55.76
+movielens,15,200,weighted_uniform,"OneBitMinHash(k=15, L=200)", 0.030294682179686467, 65.84
+movielens,12,500,weighted_uniform,"OneBitMinHash(k=12, L=500)", 0.18324472799715466, 700.88
+movielens,13,200,weighted_uniform,"OneBitMinHash(k=13, L=200)", 0.05960882810217529, 191.74
+movielens,11,200,weighted_uniform,"OneBitMinHash(k=11, L=200)", 0.15016481832609868, 557.84
+movielens,12,200,weighted_uniform,"OneBitMinHash(k=12, L=200)", 0.09598978307428911, 309.94
+movielens,13,100,uniform,"OneBitMinHash(k=13, L=100)", 0.2682843312918019, 93.54
+movielens,10,100,uniform,"OneBitMinHash(k=10, L=100)", 0.32631710691633387, 468.54
+movielens,10,200,uniform,"OneBitMinHash(k=10, L=200)", 0.33178955114378395, 828.48
+movielens,11,100,uniform,"OneBitMinHash(k=11, L=100)", 0.32646726956524313, 305.82
+movielens,15,500,uniform,"OneBitMinHash(k=15, L=500)", 0.21559422494211777, 156.08
+movielens,15,100,uniform,"OneBitMinHash(k=15, L=100)", 0.20569866582527144, 37.98
+movielens,14,200,uniform,"OneBitMinHash(k=14, L=200)", 0.2434343491281626, 111.42
+movielens,10,500,uniform,"OneBitMinHash(k=10, L=500)", 0.325618584919159, 1419.06
+movielens,12,100,uniform,"OneBitMinHash(k=12, L=100)", 0.28916976177804815, 166.52
+movielens,13,500,uniform,"OneBitMinHash(k=13, L=500)", 0.2901547708322718, 441.72
+movielens,14,500,uniform,"OneBitMinHash(k=14, L=500)", 0.26110191142390476, 272.0
+movielens,11,500,uniform,"OneBitMinHash(k=11, L=500)", 0.331031183034171, 1058.72
+movielens,14,100,uniform,"OneBitMinHash(k=14, L=100)", 0.2354004893486306, 55.76
+movielens,15,200,uniform,"OneBitMinHash(k=15, L=200)", 0.2094689359364195, 65.84
+movielens,12,500,uniform,"OneBitMinHash(k=12, L=500)", 0.31310758779047126, 700.88
+movielens,13,200,uniform,"OneBitMinHash(k=13, L=200)", 0.2764473150219575, 191.74
+movielens,11,200,uniform,"OneBitMinHash(k=11, L=200)", 0.3318336763603524, 557.84
+movielens,12,200,uniform,"OneBitMinHash(k=12, L=200)", 0.30085887253595095, 309.94
