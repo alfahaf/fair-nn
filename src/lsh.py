@@ -106,13 +106,18 @@ class LSH:
                     list(self.tables[table][bucket])))
         return results
 
-    def opt(self, Y, runs=100):
+    def opt(self, Y, runs=100, runs_per_collision=True):
         _, query_size, query_results, _, _ = self.preprocess_query(Y)
         results = {i: [] for i in range(len(Y))}
 
         for j in range(len(Y)):
             elements = list(query_results[j])
-            for _ in range(query_size[j] * runs):
+            iterations = query_size[j] * runs
+            if query_size[j] == 0:
+                break
+            if not runs_per_collision:
+                iterations = runs
+            for _ in range(iterations):
                 results[j].append(random.choice(elements))
         return results
 
@@ -123,6 +128,7 @@ class LSH:
 
         for j in range(len(Y)):
             cache = {}
+
             for _ in range(query_size[j] * runs):
                 if bucket_sizes[j] == 0:
                     results[j].append(-1)
