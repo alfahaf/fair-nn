@@ -42,7 +42,7 @@ def get_dataset(which):
     return data, queries, ground_truth, attrs 
 
 # Everything below this line is related to creating datasets
-def bruteforce(X, Y, f, stop=lambda x: False, max_cnt=-1):
+def bruteforce(X, Y, f, stop=lambda x: False, max_cnt=1e10):
     distances = [[] for _ in range(len(Y))] 
     cnt = 0
     for i, y in enumerate(Y):
@@ -88,6 +88,8 @@ def find_interesting_queries(data, dist_threshold,
         distances = bruteforce(X, Y, lambda x, y: l2(x, y) <= dist_threshold) 
     if distance == jaccard:
         distances = bruteforce(X, Y, lambda x, y: jaccard(x,y) >= dist_threshold)
+
+    print("Done")
 
     return X, Y, distances
     
@@ -305,13 +307,40 @@ def random_jaccard(out_fn, test_size=100, query_size=2):
         distance=jaccard, test_size=attrs["queries"], num_neighbors=10)
     write_output(data, queries, groundtruth, out_fn, attrs)
 
+def random_approximate(out_fn):
+    import itertools
+    l = list(range(30))
+    nn = list(range(27))
+    l1 = list(range(18))
+    l2 = list(range(15, 30))
+
+    data = [set(x) for x in list(itertools.combinations(l1, 17)) + 
+            list(itertools.combinations(l1, 16)) + 
+            list(itertools.combinations(l1, 15))]
+
+    data.extend([set(nn), set(l1), set(l2)])
+
+    query = [set(l)]
+
+    attrs = {
+        "n": len(data),
+        "queries" : len(query),
+        "dist_threshold": 0.3
+    }
+
+    write_output(data, query, bruteforce(data, query, jaccard), out_fn, attrs)
+
+
+
+
 DATASETS = {
     'glove-100-angular': lambda out_fn: glove(out_fn, 100),
     'mnist-784-euclidean': mnist,
     'sift-128-euclidean': sift,
     'lastfm': lastfm,
     'movielens': movielens,
-    'random-jaccard': lambda out_fn: random_jaccard(out_fn, 100, 10)
+    'random-jaccard': lambda out_fn: random_jaccard(out_fn, 100, 10),
+    'random-approximate': lambda out_fn: random_approximate(out_fn)
 }
 
 import argparse

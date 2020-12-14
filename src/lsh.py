@@ -106,13 +106,18 @@ class LSH:
                     list(self.tables[table][bucket])))
         return results
 
-    def opt(self, Y, runs=100):
+    def opt(self, Y, runs=100, runs_per_collision=True):
         _, query_size, query_results, _, _ = self.preprocess_query(Y)
         results = {i: [] for i in range(len(Y))}
 
         for j in range(len(Y)):
             elements = list(query_results[j])
-            for _ in range(query_size[j] * runs):
+            iterations = query_size[j] * runs
+            if query_size[j] == 0:
+                break
+            if not runs_per_collision:
+                iterations = runs
+            for _ in range(iterations):
                 results[j].append(random.choice(elements))
         return results
 
@@ -123,6 +128,7 @@ class LSH:
 
         for j in range(len(Y)):
             cache = {}
+
             for _ in range(query_size[j] * runs):
                 if bucket_sizes[j] == 0:
                     results[j].append(-1)
@@ -132,6 +138,9 @@ class LSH:
                     pos = bisect_right(prefix_sums[j], i)
                     table, bucket = query_buckets[j][pos]
                     p = random.choice(list(self.tables[table][bucket]))
+                    # discard not within distance threshold 
+                    if not self.is_candidate_valid(Y[j], self.X[p]):
+                        continue
                     if p not in cache:
                         cache[p] = int(np.median([self.approx_degree(query_buckets[j], p) for _ in range(20)]))
                     D = cache[p]
