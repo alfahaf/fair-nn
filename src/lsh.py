@@ -30,7 +30,7 @@ class LSHBuilder:
         if method == "approx_degree":
             res = lsh.approx_degree_query(queries, runs)
         if method == "rank":
-            res = lsh.rank_query_fast(queries, runs)
+            res = lsh.rank_query_simulate(queries, runs)
         return res
 
 
@@ -84,26 +84,36 @@ class LSH:
         results = {i: [] for i in range(len(Y))}
         for j in range(len(Y)):
             for _ in range(sizes[j] * runs):
-                table, bucket = query_bucket[j][random.randrange(0, self.L)]
-                elements = list(self.tables[table].get(bucket, [-1]))
-                results[j].append(random.choice(elements))
+                if len(query_results[j]) == 0:
+                    results[j].append(-1)
+                    continue
+                while True:
+                    table, bucket = query_bucket[j][random.randrange(0, self.L)]
+                    elements = list(self.tables[table].get(bucket, [-1]))
+                    p = random.choice(elements)
+                    if p != -1 and self.is_candidate_valid(Y[j], self.X[p]):
+                        results[j].append(p)
+                        break
         return results
 
     def weighted_uniform_query(self, Y, runs=100):
         from bisect import bisect_right
-        query_buckets, query_size, _, bucket_sizes, prefix_sums = self.preprocess_query(Y)
+        query_buckets, query_size, elements, bucket_sizes, prefix_sums = self.preprocess_query(Y)
         results = {i: [] for i in range(len(Y))}
 
         for j in range(len(Y)):
             for _ in range(query_size[j] * runs):
-                if bucket_sizes[j] == 0:
+                if len(elements[j]) == 0:
                     results[j].append(-1)
                     continue
-                i = random.randrange(bucket_sizes[j])
-                pos = bisect_right(prefix_sums[j], i)
-                table, bucket = query_buckets[j][pos]
-                results[j].append(random.choice(
-                    list(self.tables[table][bucket])))
+                while True:
+                    i = random.randrange(bucket_sizes[j])
+                    pos = bisect_right(prefix_sums[j], i)
+                    table, bucket = query_buckets[j][pos]
+                    p = random.choice(list(self.tables[table][bucket]))
+                    if self.is_candidate_valid(Y[j], self.X[p]):
+                        results[j].append(p)
+                        break
         return results
 
     def opt(self, Y, runs=100, runs_per_collision=True):
@@ -138,18 +148,18 @@ class LSH:
                     pos = bisect_right(prefix_sums[j], i)
                     table, bucket = query_buckets[j][pos]
                     p = random.choice(list(self.tables[table][bucket]))
-                    # discard not within distance threshold 
+                    # discard not within distance threshold
                     if not self.is_candidate_valid(Y[j], self.X[p]):
                         continue
                     if p not in cache:
-                        cache[p] = int(np.median([self.approx_degree(query_buckets[j], p) for _ in range(20)]))
+                        cache[p] = int(np.median([self.approx_degree(query_buckets[j], p) for _ in range(30)]))
                     D = cache[p]
                     if random.randint(1, D) == D: # output with probability 1/D
                         results[j].append(p)
                         break
         return results
 
-    def rank_query_fast(self, Y, runs=100):
+    def rank_query_simulate(self, Y, runs=100):
         import heapq
         n = len(self.X)
         m = len(Y)
@@ -170,9 +180,13 @@ class LSH:
             elements = list((point_rank[point], point) for point in query_results[j])
             heapq.heapify(elements)
             for _ in range(query_size[j] * runs):
-                rank, point = heapq.heappop(elements)
-                while rank != point_rank[point]:
+                while True:
                     rank, point = heapq.heappop(elements)
+                    while rank != point_rank[point]:
+                        rank, point = heapq.heappop(elements)
+                    if self.is_candidate_valid(Y[j], self.X[point]):
+                       break
+
                 results[j].append(point)
 
                 new_rank = random.randrange(rank, n)
@@ -186,49 +200,6 @@ class LSH:
                 if q in query_results[j]:
                     heapq.heappush(elements, (rank, q))
         return results
-
-    def rank_query(self, Y, runs=100):
-        n = len(self.X)
-        m = len(Y)
-        # ranks[i] is point with rank i
-        # point_rank[j] is the rank of point j
-        ranks = list(range(n))
-        point_rank = [0 for _ in range(n)]
-        random.shuffle(ranks)
-
-        for rank, point in enumerate(ranks):
-            point_rank[point] = rank
-
-        results = {i: [] for i in range(m)}
-
-        query_buckets, query_size, _, _, _ = self.preprocess_query(Y)
-
-        for j in range(m):
-            for _ in range(query_size[j] * runs):
-                # search for point with smallest rank
-                min_point = n + 1
-                min_rank = n + 1
-                for table, bucket in query_buckets[j]:
-                    if bucket in self.tables[table]:
-                        p = min(self.tables[table][bucket], key=lambda elem: point_rank[elem])
-                        if point_rank[p] < min_rank:
-                            min_rank = point_rank[p]
-                            min_point = p
-                # exchange ranks
-                if min_point < n:
-                    results[j].append(min_point)
-                    new_rank = random.randrange(min_rank, n)
-
-                    q = ranks[new_rank]
-                    ranks[min_rank] = q
-                    point_rank[q] = min_rank
-                    ranks[new_rank] = min_point
-                    point_rank[min_point] = new_rank
-
-                else:
-                    results[j].append(-1)
-        return results
-
 
     def approx_degree(self, buckets, q):
         num = 0
