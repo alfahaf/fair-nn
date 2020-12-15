@@ -16,7 +16,7 @@ class LSHBuilder:
         if lsh_params['type'] == 'e2lsh':
             return E2LSH(k, L, lsh_params['w'], d, r, validate)
         if lsh_params['type'] == 'onebitminhash':
-            return OneBitMinHash(k, L, validate)
+            return OneBitMinHash(k, L, r, validate)
 
     @staticmethod
     def invoke(lsh, method, queries, runs):
