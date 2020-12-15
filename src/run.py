@@ -7,21 +7,21 @@ from lsh import LSHBuilder
 from datasets import get_dataset, DATASETS
 from distance import l2, jaccard
 from helpers import get_result_fn
+from main import run_single_exp
 from timeit import default_timer
 
 def get_experiments(data, exp_file):
     params = {}
-    for k in exp_file['k']:
-        for L in exp_file['L']:
-            for method in LSHBuilder.methods:
-                lsh = LSHBuilder.build(len(data[0]), 
-                    exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
-                res_fn = get_result_fn(exp_file['dataset'], 
-                    exp_file['lsh']['type'], method, repr(lsh)) 
-                if os.path.exists(res_fn) and not args.force:
-                    print(f"{res_fn} exists, skipping.")
-                else:
-                    params.setdefault((k, L), []).append(method)
+    for k, L in exp_file['combs']:
+        for method in LSHBuilder.methods:
+            lsh = LSHBuilder.build(len(data[0]),
+                exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
+            res_fn = get_result_fn(exp_file['dataset'],
+                exp_file['lsh']['type'], method, repr(lsh))
+            if os.path.exists(res_fn) and not args.force:
+                print(f"{res_fn} exists, skipping.")
+            else:
+                params.setdefault((k, L), []).append(method)
     return params
 
 
@@ -59,42 +59,6 @@ if __name__ == "__main__":
     params = get_experiments(data, exp_file)
 
     for k, L in params.keys():
-        lsh = LSHBuilder.build(len(data[0]), 
-            exp_file['dist_threshold'], k, L, exp_file['lsh'], validate)
-
-        s = default_timer()
-        lsh.preprocess(data)
-        print(f"Index building took {default_timer() - s} s.")
-
-        for method in params[(k, L)]:
-            print(f"Running (k={k}, L={L}) with {method}")
-
-            candidates = lsh.get_query_size(queries)
-            start = default_timer() 
-
-            res = LSHBuilder.invoke(lsh, method, queries, exp_file["runs"])
-
-            print(f"Run took {default_timer() - start} seconds.")
-            
-            res_fn = get_result_fn(exp_file['dataset'], 
-                exp_file['lsh']['type'], method, repr(lsh)) 
-
-            res_dict = {
-                "name": str(lsh),
-                "method" : method,
-                "res": res,
-                "dataset": exp_file['dataset'],
-                "dist_threshold": exp_file['dist_threshold'],
-                "candidates": candidates,
-            }
-
-            with open(res_fn, 'wb') as f:
-                pickle.dump(res_dict, f, pickle.HIGHEST_PROTOCOL)
-
-
-
-
-
-
-
+        run_single_exp(exp_file['dataset'], exp_file['dist_threshold'],
+                exp_file['lsh']['type'], exp_file['lsh'].get('w', 0), k, L, validate, False)
 
