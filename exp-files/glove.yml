@@ -1,9 +1,8 @@
-dataset: glove-100-angular 
-k: [10, 11, 12, 13, 14, 15]
-L: [100, 200, 500]
-dist_threshold: 5.1
-runs: 100 
-validate: False
+dataset: "glove-100-angular"
+combs: [[15, 100], [15, 200], [15,300], [14, 100], [13, 100], [12, 100]]
+dist_threshold: 4.7
+runs: 100
+validate: True
 lsh:
  type: "e2lsh"
- w: 4 
+ w: 15.7

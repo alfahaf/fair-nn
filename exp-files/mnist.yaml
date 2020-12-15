@@ -1,12 +1,11 @@
-dataset: mnist-784-euclidean
-k: [8, 10, 12]
-L: [100, 200, 500]
-dist_threshold: 1500
-runs: 100 
-validate: False 
+dataset: "mnist-784-euclidean"
+dist_threshold: 1200
+combs: [[15, 100], [15, 200], [15,300], [14, 100], [13, 100], [12, 100]]
+runs: 100
+validate: True
 lsh:
  type: "e2lsh"
- w: 1500
+ w: 3700
 
 
 

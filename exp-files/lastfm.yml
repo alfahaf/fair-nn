@@ -1,8 +1,7 @@
-dataset: lastfm 
-k: [10, 11, 12]
-L: [100, 200, 500]
-dist_threshold: 0.15 
+dataset: "lastfm"
+combs: [[8, 100], [8, 200], [8, 300], [7, 100], [6, 100]] 
+dist_threshold: 0.2
 runs: 100
-validate: False
+validate: True
 lsh:
  type: "onebitminhash"
