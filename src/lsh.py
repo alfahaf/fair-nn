@@ -151,9 +151,9 @@ class LSH:
                     # discard not within distance threshold
                     if not self.is_candidate_valid(Y[j], self.X[p]):
                         continue
-                    if p not in cache:
-                        cache[p] = int(np.median([self.approx_degree(query_buckets[j], p) for _ in range(30)]))
-                    D = cache[p]
+                    #if p not in cache:
+                    #    cache[p] = int(np.median([self.approx_degree(query_buckets[j], p) for _ in range(30)]))
+                    D = self.approx_degree(query_buckets[j], p) #cache[p]
                     if random.randint(1, D) == D: # output with probability 1/D
                         results[j].append(p)
                         break
