@@ -60,5 +60,6 @@ if __name__ == "__main__":
 
     for k, L in params.keys():
         run_single_exp(exp_file['dataset'], exp_file['dist_threshold'],
-                exp_file['lsh']['type'], exp_file['lsh'].get('w', 0), k, L, validate, False)
+                exp_file['lsh']['type'], k, L,
+                exp_file['lsh'].get('w', 0), validate, False, exp_file['runs'])
 

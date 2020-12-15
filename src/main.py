@@ -3,9 +3,24 @@ import pickle
 import time
 from datasets import get_dataset, DATASETS
 from helpers import get_result_fn
-from lsh import LSHBuilder
+from lsh import LSHBuilder, E2LSH, OneBitMinHash
+from distance import l2, jaccard
 
-def run_single_exp(dataset, distance_threshold, lsh_method, k, L, w, validate, report_output):
+def compute_recall(data, queries, lsh, r):
+    near = 0
+    found = 0
+    _, _, elements, _, _ = lsh.preprocess_query(queries)
+    for j, q in enumerate(queries):
+        for i, v in enumerate(data):
+            if ((isinstance(lsh, E2LSH) and l2(q, v) <= r) or
+               (isinstance(lsh, OneBitMinHash) and jaccard(q, v) >= r)):
+                near += 1
+                if i in elements[j]:
+                    found += 1
+    return found / near
+
+
+def run_single_exp(dataset, distance_threshold, lsh_method, k, L, w, validate, report_output, runs):
     data, queries, _, _ = get_dataset(dataset)
 
     lsh = LSHBuilder.build(len(data[0]), distance_threshold,
@@ -18,12 +33,13 @@ def run_single_exp(dataset, distance_threshold, lsh_method, k, L, w, validate, r
 
     if report_output:
         print(candidates)
+        print(f"Recall: {compute_recall(data, queries, lsh, distance_threshold)}")
         exit(0)
 
     for method in LSHBuilder.methods:
-        print(f"Running (k={args.k}, L={args.L}) with {method}")
+        print(f"Running (k={k}, L={L}) with {method}")
         start = time.time()
-        res = LSHBuilder.invoke(lsh, method, queries, args.runs)
+        res = LSHBuilder.invoke(lsh, method, queries, runs)
         print(f"Run finished in {time.time() - start}s.")
 
         res_fn = get_result_fn(dataset,
@@ -91,5 +107,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    run_single_exp(args.dataset, args.distance_threshold, args.method, 
-        args.k, args.L, args.w, args.validate, args.report_output)
+    run_single_exp(args.dataset, args.distance_threshold, args.method,
+        args.k, args.L, args.w, args.validate, args.report_output, args.runs)
