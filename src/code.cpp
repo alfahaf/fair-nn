@@ -10,6 +10,10 @@
 #include <map>
 #include <ctime>
 #include <cstdlib>
+#include <algorithm>
+#include <random>
+#include <chrono>
+#include <cassert>
 using namespace std;
 
 
@@ -18,45 +22,73 @@ const int maxn = 10001;//maximum number of points in the data set
 const int maxQ = 101;//maximum number of queries asked
 const int maxL = 501;//maximum value of L considered
 const int maxk = 51;//maximum value of k considered
+const int RUNS = 10; //repeat each test 10 times
+const int SEED = 1234; // fixed seed
+auto timer = std::chrono::high_resolution_clock();
 int n , k , L, w , Q;
+string dataset_fn, queryset_fn; 
 double R;//radius of near neighbor
 double pnt[maxn][dim];//data set points
 double query[maxQ][dim];//query points
 double hfv[maxL][maxk][dim];//random direction vectors used for each of the (k*L) hash functions
 double hfb[maxL][maxk];//random bias for shifting the 1-dimensional grid used for each of the (k*L) hash functions
 
-void Initialize(){
+vector<int> ranks(maxn); 
+vector<int> point_rank(maxn);
+map<int, vector<double>> times;
+
+void Initialize(int argc, char** argv){
 	cout << "initializing ..." << endl;
 	memset(pnt,0,sizeof pnt);
+
+	if (argc == 1) {
+		dataset_fn = string("data/mnist_data.txt");
+		queryset_fn = string("data/mnist_queries.txt");
+		k = 15;
+		L = 100;//sqrt(n);
+		R = 255*5;
+		w= 3750;
+	} else if (argc == 7) {
+		dataset_fn = string(argv[1]);
+		queryset_fn = string(argv[2]);
+		k = std::atoi(argv[3]);
+		L = std::atoi(argv[4]);
+		R = std::atof(argv[5]);
+		w = std::atof(argv[6]);
+	} else {
+		std::cerr << "Wrong number of arguments." << endl;
+		std::cerr << "Usage: " << argv[0] << " <dataset> <queryset> <k> <L> <R> <w>" << endl;
+		exit(1);
+	}
+
+	// fixed constants
 	n = 10000;
-	k = 15;
-	L = 100;//sqrt(n);
-	R = 255*5;
-	w= 4000;
-	Q = 100;
+	Q = 50;
 	cout <<"Params: L is " << L << " k is " << k << " w is " << w << " R is " << R << " n is " << n << endl;
-	srand(time(0));
-	return;
+	srand(SEED);
+
+	for (int i = 0; i < n; i++) {
+		ranks[i] = i;
+	}
+	std::shuffle(ranks.begin(), ranks.end(), std::default_random_engine(SEED));
+
+	for (int i = 0; i < n; i++) {
+		point_rank[ranks[i]] = i;
+	}
 }
 
 void ReadInput(){
 	cout << "Reading input ..." << endl;
-	ifstream fin("mnist255.csv");//reading the data set points
+	ifstream fin(dataset_fn);//reading the data set points
 	for (int i=0 ; i<n ; ++i)
 		for (int j=0 ; j<dim ; ++j){
-			char c;
 			fin >> pnt[i][j];
-			if (j<dim-1)
-				fin >> c;
 		}
 	fin.close();
-	fin.open("test255.csv");//reading the query points
+	fin.open(queryset_fn);//reading the query points
 	for (int i=0 ; i<Q ; ++i)
 		for (int j=0 ; j<dim ; ++j){
-			char c;
 			fin >> query[i][j];
-			if (j<dim-1)
-				fin >> c;
 		}
 	fin.close();
 	return;
@@ -81,6 +113,23 @@ void ReadHashFunctions(){
 			hfb[i][j] = hfb[i][j]*w;
 		}
 	fin.close();
+	return;
+}
+
+void GenerateHashFunctions(){
+	cout << "Generating hash functions...." << endl;
+	std::default_random_engine generator;
+	std::normal_distribution<double> norm_dist(0.0, 1.0);
+
+	for (int i=0 ; i<L ; ++i)
+		for (int j=0 ; j<k ; ++j) 
+			for (int ii=0 ; ii<dim ; ++ii)
+				hfv[i][j][ii] = norm_dist(generator);
+
+	std::uniform_int_distribution<int> int_dist(0, w);
+	for (int i=0 ; i<L ; ++i)
+		for (int j=0 ; j<k ; ++j)
+			hfb[i][j] = int_dist(generator);
 	return;
 }
 
@@ -181,7 +230,7 @@ void BuildLSH(){
 
 
 //this function is also used only for tuning the parameters of LSH
-/*void ComputeRetrievalRate(){
+void ComputeRetrievalRate(){
 	int avgN =0;
 	int avgO = 0;
 	int avgFN=0;
@@ -213,7 +262,6 @@ void BuildLSH(){
 	cout << "average False Negative is " << (avgFN*100)/close << "\%" << endl;
 	return;
 }
-*/
 
 
 int sizes[maxL];// each time we get a query, we compute the sizes of the buckets corresponding to the query.
@@ -268,10 +316,19 @@ int approximate_degree(int iq , int ip){
 	return L/num;
 }
 
+int exact_degree(int iq , int ip){
+	int cnt=0;
+	for (int l =0 ; l < L; l++) {
+		if (hQuery[l][iq]==hPoint[l][ip])
+			cnt++;
+	}
+	return cnt; 
+}
+
 
 map <int,int> Degree;//this variable is used to compute the exact degrees of the points in the bucket correnponding to the current query. This is used for comparison with the optimal algorithm. Degree[ip] shows the exact degree of the point with index ip among the buckets of the current query.
 
-const int cases = 4;//This corresponds to the four algorithms we are implementing 
+const int cases = 5;//This corresponds to the four algorithms we are implementing 
 //0 is the Uniform/Uniform algorithm, 1 is the Weighted/Uniform algorithm, 2 is the optimal algorithm, 3 is our proposed algorithm
 
 double avgRes[cases];//This variable keeps the average results for each algorithm.
@@ -285,50 +342,149 @@ void RandomSample(int cd , int iq, int snum){
 	if (snum==0)
 		return;
 
-	//computing the parameters sizes and sumsize of the buckets so that we dont have to compute it each time we draw a sample
-	for (int l=0 ; l<L ; ++l){
-		set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
-		int count=0;
-		while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
-			it++;
-			count++;
-		}
-		sizes[l] = count;
-		if (l==0)
-			sumsize = sizes[l];
-		else
-			sumsize += sizes[l];
-	}
-
 	map<int,int> mp;//This shows the distribution over the points in the neighborhood of the query.
-	
-	while (snum){//generating the samples
-		int s=-1;
-		if (cd==0)
-			s = single_sample_uniform(iq);
-		else
-			s = single_sample_weighted(iq);
-		if (ComputeDist(iq,s)>R)//reject the points outside neighborhood
-			continue;
-		bool valid = false;//shows if we should keep the sample or reject it.
-		if (cd==0 || cd==1)//the uniform/uniform and weighted/uniform algorithms will always report the sampled point
-			valid = true;
-		else if (cd==2){//the optimal algorithm rejects the point w.p. 1/degree
-			int d = Degree[s];
-			valid = (rand()*d<RAND_MAX);
+
+// This is in implementation of collecting all points, around 3x times slower as opt in my tests.
+// 		set<int> elements;
+// 		for (int l=0 ; l<L ; ++l){
+// 			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+// 			while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
+// 				auto elem = (*it).second;
+// 				// cout << elem << " " << ComputeDist(elem, iq) << endl;
+// 				if (ComputeDist(iq, elem) <= R) {
+// 					elements.insert(elem);
+// 				}
+// 				it++;
+// 			}
+// 		}
+// 		vector<int> elem_vec;
+// 		for (auto& e: elements) {
+// 			elem_vec.push_back(e);
+// 		}
+// 		while (snum) {
+// 			auto s = elem_vec[rand() % elem_vec.size()];
+// 			snum--;
+// 			if (mp.find(s)!=mp.end())//update the distribution
+// 				mp[s] = mp[s]+1;
+// 			else
+// 				mp[s] = 1;
+// 		} 
+ 	if (cd == 4) {
+        // Implementation of the dependent-between-query approach based on random ranks
+		// sort all buckets by rank
+		vector<vector<int>> buckets_by_rank; 
+		for (int l=0 ; l<L ; ++l){
+			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+			vector<int> points;
+			while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
+				points.push_back(it->second);
+				it++;
+			}
+			std::sort(points.begin(), points.end(), 
+				[](const int& a, const int& b) -> bool
+				{
+					return point_rank[a] > point_rank[b]; // sort in descending order for quick removal of elements
+			});
+			buckets_by_rank.push_back(points);
 		}
-		else if (cd==3){//our algorithm rejects the point w.p. 1/degree'
-			int dd = approximate_degree(iq,s);
-			valid = (rand()*dd<RAND_MAX);
-		}
-		if (valid){//if the point is not rejected then a sample is successfully retrieved
+
+		while (snum) {
+			int s = n + 1;
+			int min_rank = n + 1;
+			vector<int> min_locations;
+			for (int l=0 ; l<L ; ++l){
+				if (buckets_by_rank[l].size() == 0) {
+					continue;
+				}
+				int q = buckets_by_rank[l].at(buckets_by_rank[l].size() - 1);
+				if (point_rank.at(q) < min_rank) {
+					min_rank = point_rank.at(q);
+					s = q; 
+					min_locations.clear();
+					min_locations.push_back(l);
+				}
+				else if (point_rank.at(q) == min_rank) {
+					min_locations.push_back(l);
+				}
+			}
+
+			if (ComputeDist(iq, s) > R) {
+				for (auto &l: min_locations) {
+					buckets_by_rank[l].pop_back();
+				}
+				continue;
+			}
+
 			snum--;
+
 			if (mp.find(s)!=mp.end())//update the distribution
 				mp[s] = mp[s]+1;
 			else
 				mp[s] = 1;
+
+			assert(min_rank != n + 1);
+
+
+			auto new_rank = min_rank +  1 + rand() % (maxn - min_rank - 2);
+			auto q = ranks.at(new_rank);
+			ranks.at(min_rank) = q;
+			point_rank.at(q) = min_rank;
+			ranks.at(new_rank) = s;
+			point_rank.at(s) = new_rank;
+
+			for (int l = 0; l < L; l++) {
+				std::sort(buckets_by_rank[l].begin(), buckets_by_rank[l].end(), 
+					[](const int& a, const int& b) -> bool
+					{
+						return point_rank.at(a) > point_rank.at(b);
+					});
+			}
+		}
+ 	} else {
+		//computing the parameters sizes and sumsize of the buckets so that we dont have to compute it each time we draw a sample
+		for (int l=0 ; l<L ; ++l){
+			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+			int count=0;
+			while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
+				it++;
+				count++;
+			}
+			sizes[l] = count;
+			if (l==0)
+				sumsize = sizes[l];
+			else
+				sumsize += sizes[l];
+		}
+
+		while (snum){//generating the samples
+			int s=-1;
+			if (cd==0)
+				s = single_sample_uniform(iq);
+			else 
+				s = single_sample_weighted(iq);
+			if (ComputeDist(iq,s)>R)//reject the points outside neighborhood
+				continue;
+			bool valid = false;//shows if we should keep the sample or reject it.
+			if (cd==0 || cd==1)//the uniform/uniform and weighted/uniform algorithms will always report the sampled point
+				valid = true;
+			else if (cd==2){//the optimal algorithm rejects the point w.p. 1/degree
+				int d = exact_degree(iq, s);//Degree[s];
+				valid = (rand() % d == 0);
+			}
+			else if (cd==3){//our algorithm rejects the point w.p. 1/degree'
+				int dd = approximate_degree(iq,s);
+				valid = (rand() % dd == 0);
+			}
+			if (valid){//if the point is not rejected then a sample is successfully retrieved
+				snum--;
+				if (mp.find(s)!=mp.end())//update the distribution
+					mp[s] = mp[s]+1;
+				else
+					mp[s] = 1;
+			}
 		}
 	}
+
 	double L1=0;
 	for (map<int,int>::iterator it = mp.begin();it!=mp.end() ; ++it)//compute the L_1 distance of the distribution from the uniform niform
 		L1 += abs((*it).second - 100);
@@ -354,29 +510,52 @@ void Query(int qq){
 			}
 		}
 	}
-	for (int i=0 ; i<10 ; ++i)//repeat each test 10 times
-		for (int j=0 ; j<cases ; ++j)//for each of the four algorithms
-			RandomSample(j, qq,100*Degree.size());//generate 100*m samples where m is the size of the neighborhood
+	int SAMPLES = 1 * Degree.size(); //generate 100*m samples where m is the size of the neighborhood
+
+	for (int i=0 ; i<RUNS ; ++i) {
+		for (int j=0 ; j<cases ; ++j) {//for each of the four algorithms
+				auto start = timer.now();
+
+				RandomSample(j, qq, SAMPLES);
+
+				auto query_time_in_s =  (timer.now() - start).count() / 1e9;
+				if (times.find(j) == times.end()) {
+					times.insert(make_pair(j, vector<double>()));
+				}
+				times.find(j)->second.push_back(query_time_in_s);
+			}
+		}
 	return;
 }
 
-int main(){
-	Initialize();//initializing the parameters
+int main(int argc, char** argv){
+	Initialize(argc, argv);//initializing the parameters
 	ReadInput();//reading the data points and queries
-	ReadHashFunctions();//reading randomly generated hash functions
+	GenerateHashFunctions();//reading randomly generated hash functions
 	ComputeHashes();// computing hash value of the points
 	BuildLSH();//constructing the LSH buckets
-//	ComputeRetrievalRate(); // this is used for tuning the parameters of LSH only
+	// ComputeRetrievalRate(); // this is used for tuning the parameters of LSH only
 
 	memset(avgRes,0,sizeof(avgRes));//initialize the results to 0
 	TotalTestNum=0;//initialize to 0
 	for (int q=0 ; q<Q ; ++q)//run it for the first Q queries
 		Query(q);
 
-	ofstream fout("results.out");//outputting the result
+	// generate nice result file name 
+	auto slash_pos = dataset_fn.find_last_of("/");
+	auto suffix_pos = dataset_fn.find_last_of("."); 
+	stringstream ss; 
+	ss << dataset_fn.substr(slash_pos + 1, suffix_pos - slash_pos - 1) << 
+		"_(k=" << k << ", L=" << L << ", w=" << w << ")_results.out"; 
+	auto expfile_fn = ss.str();
+
+	ofstream fout(expfile_fn);//outputting the result
 	TotalTestNum/=cases;
-	for (int i=0 ; i<cases ; ++i)
-		fout << i << ",\t" << avgRes[i]/(200*TotalTestNum) <<  endl; // we are dividing by 200 (2 is for the statistical distance and 100 is because we used 100*m samples per query.
+	for (int i=0 ; i<cases ; ++i) {
+		auto query_times = times.find(i)->second;
+		auto avgTime = accumulate(query_times.begin(), query_times.end(), 0.0) / query_times.size();
+		fout << i << ", " << avgRes[i]/(200*TotalTestNum) << ", " << avgTime << endl; // we are dividing by 200 (2 is for the statistical distance and 100 is because we used 100*m samples per query.
+	}
 	fout.close();
 	return 0;
 }
