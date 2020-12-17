@@ -67,6 +67,7 @@ void Initialize(int argc, char** argv){
 	// fixed constants
 	n = 10000;
 	Q = 50;
+	cout << "Running experiment on " << dataset_fn << endl;
 	cout <<"Params: L is " << L << " k is " << k << " w is " << w << " R is " << R << " n is " << n << endl;
 	srand(SEED);
 	for (int i = 0; i < maxn; i++) 
