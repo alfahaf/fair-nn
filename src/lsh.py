@@ -38,7 +38,7 @@ class LSH:
 
     def preprocess(self, X):
         self.X = X
-        n, d = len(X), len(X[0])
+        n = len(X)
         hvs = self._hash(X)
         self.tables = [{} for _ in range(self.L)]
         for i in range(n):
@@ -123,11 +123,11 @@ class LSH:
         for j in range(len(Y)):
             elements = list(query_results[j])
             iterations = query_size[j] * runs
-            if query_size[j] == 0:
-                break
             if not runs_per_collision:
                 iterations = runs
             for _ in range(iterations):
+                if query_size[j] == 0:
+                    results[j].append(-1)
                 results[j].append(random.choice(elements))
         return results
 
