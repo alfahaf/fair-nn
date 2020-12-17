@@ -17,7 +17,6 @@
 using namespace std;
 
 
-const int dim = 784;//dimension
 const int maxn = 10001;//maximum number of points in the data set
 const int maxQ = 101;//maximum number of queries asked
 const int maxL = 501;//maximum value of L considered
@@ -25,12 +24,14 @@ const int maxk = 51;//maximum value of k considered
 const int RUNS = 10; //repeat each test 10 times
 const int SEED = 1234; // fixed seed
 auto timer = std::chrono::high_resolution_clock();
-int n , k , L, w , Q;
+int n , k , L, Q;
+int dim;  // dimension
+double w;
 string dataset_fn, queryset_fn; 
 double R;//radius of near neighbor
-double pnt[maxn][dim];//data set points
-double query[maxQ][dim];//query points
-double hfv[maxL][maxk][dim];//random direction vectors used for each of the (k*L) hash functions
+double* pnt[maxn];//data set points
+double* query[maxQ];//query points
+double* hfv[maxL][maxk];//random direction vectors used for each of the (k*L) hash functions
 double hfb[maxL][maxk];//random bias for shifting the 1-dimensional grid used for each of the (k*L) hash functions
 
 vector<int> ranks(maxn); 
@@ -44,20 +45,22 @@ void Initialize(int argc, char** argv){
 	if (argc == 1) {
 		dataset_fn = string("data/mnist_data.txt");
 		queryset_fn = string("data/mnist_queries.txt");
+		dim = 784;
 		k = 15;
 		L = 100;//sqrt(n);
 		R = 255*5;
 		w= 3750;
-	} else if (argc == 7) {
+	} else if (argc == 8) {
 		dataset_fn = string(argv[1]);
 		queryset_fn = string(argv[2]);
-		k = std::atoi(argv[3]);
-		L = std::atoi(argv[4]);
-		R = std::atof(argv[5]);
-		w = std::atof(argv[6]);
+		dim = std::atoi(argv[3]);
+		k = std::atoi(argv[4]);
+		L = std::atoi(argv[5]);
+		R = std::atof(argv[6]);
+		w = std::atof(argv[7]);
 	} else {
 		std::cerr << "Wrong number of arguments." << endl;
-		std::cerr << "Usage: " << argv[0] << " <dataset> <queryset> <k> <L> <R> <w>" << endl;
+		std::cerr << "Usage: " << argv[0] << " <dataset> <queryset> <dim> <k> <L> <R> <w>" << endl;
 		exit(1);
 	}
 
@@ -66,6 +69,13 @@ void Initialize(int argc, char** argv){
 	Q = 50;
 	cout <<"Params: L is " << L << " k is " << k << " w is " << w << " R is " << R << " n is " << n << endl;
 	srand(SEED);
+	for (int i = 0; i < maxn; i++) 
+		pnt[i] = new double[dim];
+	for (int i = 0; i < maxQ; i++) 
+		query[i] = new double[dim];
+	for (int i = 0; i < maxL; i++) 
+		for (int j = 0; j < maxk; j++) 
+			hfv[i][j] = new double[dim];
 
 	for (int i = 0; i < n; i++) {
 		ranks[i] = i;
@@ -510,7 +520,7 @@ void Query(int qq){
 			}
 		}
 	}
-	int SAMPLES = 1 * Degree.size(); //generate 100*m samples where m is the size of the neighborhood
+	int SAMPLES = 100 * Degree.size(); //generate 100*m samples where m is the size of the neighborhood
 
 	for (int i=0 ; i<RUNS ; ++i) {
 		for (int j=0 ; j<cases ; ++j) {//for each of the four algorithms
@@ -534,7 +544,7 @@ int main(int argc, char** argv){
 	GenerateHashFunctions();//reading randomly generated hash functions
 	ComputeHashes();// computing hash value of the points
 	BuildLSH();//constructing the LSH buckets
-	// ComputeRetrievalRate(); // this is used for tuning the parameters of LSH only
+	ComputeRetrievalRate(); // this is used for tuning the parameters of LSH only
 
 	memset(avgRes,0,sizeof(avgRes));//initialize the results to 0
 	TotalTestNum=0;//initialize to 0
@@ -557,5 +567,14 @@ int main(int argc, char** argv){
 		fout << i << ", " << avgRes[i]/(200*TotalTestNum) << ", " << avgTime << endl; // we are dividing by 200 (2 is for the statistical distance and 100 is because we used 100*m samples per query.
 	}
 	fout.close();
+
+	for (int i = 0; i < maxn; i++) 
+		delete[] pnt[i];
+	for (int i = 0; i < maxQ; i++) 
+		delete[] query[i]; 
+	for (int i = 0; i < maxL; i++) 
+		for (int j = 0; j < maxk; j++) 
+			delete[] hfv[i][j];
+
 	return 0;
 }
