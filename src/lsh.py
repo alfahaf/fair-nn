@@ -128,6 +128,7 @@ class LSH:
             for _ in range(iterations):
                 if query_size[j] == 0:
                     results[j].append(-1)
+                    continue
                 results[j].append(random.choice(elements))
         return results
 
