@@ -1,0 +1,60 @@
+initializing ...
+Running experiment on data/sift-128-euclidean-data.txt
+Params: L is 100 k is 15 w is 870 R is 270 n is 10000
+Reading input ...
+Generating hash functions....
+Computing hashes.....
+building LSH
+average neighborhood size is 601
+average Outliers is 325
+average False Negative is 15%
+in query 0
+in query 1
+in query 2
+in query 3
+in query 4
+in query 5
+in query 6
+in query 7
+in query 8
+in query 9
+in query 10
+in query 11
+in query 12
+in query 13
+in query 14
+in query 15
+in query 16
+in query 17
+in query 18
+in query 19
+in query 20
+in query 21
+in query 22
+in query 23
+in query 24
+in query 25
+in query 26
+in query 27
+in query 28
+in query 29
+in query 30
+in query 31
+in query 32
+in query 33
+in query 34
+in query 35
+in query 36
+in query 37
+in query 38
+in query 39
+in query 40
+in query 41
+in query 42
+in query 43
+in query 44
+in query 45
+in query 46
+in query 47
+in query 48
+in query 49
