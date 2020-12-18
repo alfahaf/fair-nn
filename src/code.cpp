@@ -20,7 +20,7 @@ using namespace std;
 const int maxn = 10001;//maximum number of points in the data set
 const int maxQ = 101;//maximum number of queries asked
 const int maxL = 501;//maximum value of L considered
-const int maxk = 51;//maximum value of k considered
+const int maxk = 21;//maximum value of k considered
 const int RUNS = 10; //repeat each test 10 times
 const int SEED = 1234; // fixed seed
 auto timer = std::chrono::high_resolution_clock();
@@ -281,7 +281,7 @@ int sumsize;//and we compute the sum of sizes[0] ...sizes[(-1] of the sizes in t
 
 //This function returns a random bucket according to its size and then a random point inside the bucket.
 //This is implemented by generating a random number from 1 to sumsize and then finding the point corresponding to this number
-int single_sample_weighted(int iq){
+pair<int, int> single_sample_weighted(int iq, vector<set<int>>& query_buckets){
 	int r = rand()%sumsize;
 	r++;
 	int l=0;
@@ -289,28 +289,30 @@ int single_sample_weighted(int iq){
 		r-=sizes[l];
 		l++;
 	}
-	set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+	// set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+	auto it = query_buckets[l].lower_bound(-1);
 	while (true){
 		r--;
 		if (r==0)
-			return (*it).second;
+			return make_pair(*it, l);
 		it++;
 	}
-	return -1;
+	return make_pair(-1, -1);
 }
 
 //This function returns a random bucket uniformly at random and then a random point inside the bucket.
 //This is implemented by generating a random number from 1 to L and then a random point inside the bucket
-int single_sample_uniform(int iq){
+pair<int, int> single_sample_uniform(int iq, vector<set<int>>& query_buckets){
 	int l=-1;//index of the bucket
 	for (l=(rand()%L) ; sizes[l]==0 ; l=(rand()%L));//avoid sampling an empty bucket
 	int r = rand()%sizes[l];//index of the point in the bucket
-	set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+	// set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+	auto it = query_buckets[l].lower_bound(-1);
 	while (r){
 		r--;
 		it++;
 	}
-	return (*it).second;
+	return make_pair(*it, l);
 }
 
 //This function approximates the degree of a data set point (with index ip) among the buckets containing the query (with index iq)
@@ -380,10 +382,9 @@ void RandomSample(int cd , int iq, int snum){
 // 			else
 // 				mp[s] = 1;
 // 		} 
+
  	if (cd == 4) {
-        // Implementation of the dependent-between-query approach based on random ranks
-		// sort all buckets by rank
-		vector<vector<int>> buckets_by_rank; 
+		vector<vector<int>> query_buckets; 
 		for (int l=0 ; l<L ; ++l){
 			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
 			vector<int> points;
@@ -391,12 +392,16 @@ void RandomSample(int cd , int iq, int snum){
 				points.push_back(it->second);
 				it++;
 			}
+			query_buckets.push_back(points);
+		}
+        // Implementation of the dependent-between-query approach based on random ranks
+		// sort all buckets by rank
+		for (auto& points: query_buckets) {
 			std::sort(points.begin(), points.end(), 
 				[](const int& a, const int& b) -> bool
 				{
 					return point_rank[a] > point_rank[b]; // sort in descending order for quick removal of elements
 			});
-			buckets_by_rank.push_back(points);
 		}
 
 		while (snum) {
@@ -404,10 +409,10 @@ void RandomSample(int cd , int iq, int snum){
 			int min_rank = n + 1;
 			vector<int> min_locations;
 			for (int l=0 ; l<L ; ++l){
-				if (buckets_by_rank[l].size() == 0) {
+				if (query_buckets[l].size() == 0) {
 					continue;
 				}
-				int q = buckets_by_rank[l].at(buckets_by_rank[l].size() - 1);
+				int q = query_buckets[l].at(query_buckets[l].size() - 1);
 				if (point_rank.at(q) < min_rank) {
 					min_rank = point_rank.at(q);
 					s = q; 
@@ -421,7 +426,7 @@ void RandomSample(int cd , int iq, int snum){
 
 			if (ComputeDist(iq, s) > R) {
 				for (auto &l: min_locations) {
-					buckets_by_rank[l].pop_back();
+					query_buckets[l].pop_back();
 				}
 				continue;
 			}
@@ -444,7 +449,7 @@ void RandomSample(int cd , int iq, int snum){
 			point_rank.at(s) = new_rank;
 
 			for (int l = 0; l < L; l++) {
-				std::sort(buckets_by_rank[l].begin(), buckets_by_rank[l].end(), 
+				std::sort(query_buckets[l].begin(), query_buckets[l].end(), 
 					[](const int& a, const int& b) -> bool
 					{
 						return point_rank.at(a) > point_rank.at(b);
@@ -453,13 +458,17 @@ void RandomSample(int cd , int iq, int snum){
 		}
  	} else {
 		//computing the parameters sizes and sumsize of the buckets so that we dont have to compute it each time we draw a sample
+		vector<set<int>> query_buckets;
 		for (int l=0 ; l<L ; ++l){
 			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
 			int count=0;
+			set<int> points;
 			while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
+				points.insert(it->second);
 				it++;
 				count++;
 			}
+			query_buckets.push_back(points);
 			sizes[l] = count;
 			if (l==0)
 				sumsize = sizes[l];
@@ -469,12 +478,23 @@ void RandomSample(int cd , int iq, int snum){
 
 		while (snum){//generating the samples
 			int s=-1;
-			if (cd==0)
-				s = single_sample_uniform(iq);
-			else 
-				s = single_sample_weighted(iq);
-			if (ComputeDist(iq,s)>R)//reject the points outside neighborhood
+			int l=-1;
+			if (cd==0) {
+				auto res = single_sample_uniform(iq, query_buckets);
+				s = res.first;
+				l = res.second;
+			}
+			else  {
+				auto res = single_sample_weighted(iq, query_buckets);
+				s = res.first;
+				l = res.second;
+			}
+			if (ComputeDist(iq,s)>R) {//reject the points outside neighborhood
+				query_buckets[l].erase(s); // remove the point from the data structure
+				sizes[l]--;
+				sumsize--;
 				continue;
+			}
 			bool valid = false;//shows if we should keep the sample or reject it.
 			if (cd==0 || cd==1)//the uniform/uniform and weighted/uniform algorithms will always report the sampled point
 				valid = true;
