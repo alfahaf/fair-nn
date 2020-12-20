@@ -5,9 +5,9 @@ Reading input ...
 Generating hash functions....
 Computing hashes.....
 building LSH
-average neighborhood size is 380
-average Outliers is 158
-average False Negative is 8%
+average neighborhood size is 393
+average Outliers is 178
+average False Negative is 10%
 in query 0
 in query 1
 in query 2
