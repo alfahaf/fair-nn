@@ -63,12 +63,12 @@ def find_interesting_queries(data, dist_threshold,
         distances = bruteforce(data, data, 
             lambda x, y: l2(x, y) <= dist_threshold,
             lambda x: len(x) >= num_neighbors,
-            query_size) 
+            10 * query_size) 
     if distance == jaccard:
         distances = bruteforce(data, data, 
             lambda x, y: jaccard(x, y) >= dist_threshold,
             lambda x: len(x) >= num_neighbors,
-            query_size)
+            10 * query_size)
     
     distances = [(i, l) for i, l in enumerate(distances) if len(l) >= num_neighbors]
     random.shuffle(distances)
@@ -120,7 +120,7 @@ def glove(out_fn, d):
             X.append(numpy.array(v))
         
         X, Y, groundtruth = find_interesting_queries(
-            random.choices(X, k=attrs["n"] + 6 * attrs["queries"]), 
+            random.sample(X, k=attrs["n"] + 6 * attrs["queries"]), 
             dist_threshold=attrs["dist_threshold"], 
             distance=l2, 
             test_size=attrs["n"], 
@@ -164,12 +164,9 @@ def sift(out_fn):
     download(url, fn)
     with tarfile.open(fn, 'r:gz') as t:
         train = _get_irisa_matrix(t, 'sift/sift_base.fvecs')
-        print("splitting")
-        train, _ = train_test_split(train, train_size=attrs["n"] + 6 * attrs["queries"], 
-                                    random_state=4)
-        print("splitting done")
     
-    data, queries, groundtruth = find_interesting_queries(train, 
+    data, queries, groundtruth = find_interesting_queries(
+                        random.sample(list(train), k=attrs["n"] + 6 * attrs["queries"]), 
                         query_size=attrs["queries"], 
                         dist_threshold=attrs["dist_threshold"], 
                         distance=l2, test_size=attrs["n"],
@@ -220,10 +217,10 @@ def mnist(out_fn):
         "queries": 50,
         "n": 10000,
     }
-    train, _ = train_test_split(_load_mnist_vectors('mnist-train.gz'), 
-        train_size=attrs["n"] + 6 * attrs["queries"])
+    train = _load_mnist_vectors('mnist-train.gz')
 
-    data, queries, groundtruth = find_interesting_queries(train, 
+    data, queries, groundtruth = find_interesting_queries(
+                        random.sample(list(train), k=attrs["n"] + 6 * attrs["queries"]),
                         query_size=attrs["queries"], 
                         dist_threshold=attrs["dist_threshold"], 
                         distance=l2, test_size=attrs["n"],
