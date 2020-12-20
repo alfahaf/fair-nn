@@ -30,8 +30,8 @@ def get_dataset(which):
     fn = get_dataset_fn(which)
     if not os.path.exists(fn):
         try:
-            url = 'http://todo/%s.hdf5' % which
-            download(url, hdf5_fn)
+            url = 'http://itu.dk/people/maau/fairnn/datasets/%s.pickle' % which
+            download(url, fn)
         except:
             print("Cannot download %s" % url)
             if which in DATASETS:
