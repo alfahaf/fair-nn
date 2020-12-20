@@ -441,12 +441,13 @@ void RandomSample(int cd , int iq, int snum){
 			assert(min_rank != n + 1);
 
 
-			auto new_rank = min_rank +  1 + rand() % (maxn - min_rank - 2);
+			auto new_rank = min_rank +  rand() % (maxn - min_rank - 1);
 			auto q = ranks.at(new_rank);
 			ranks.at(min_rank) = q;
 			point_rank.at(q) = min_rank;
 			ranks.at(new_rank) = s;
 			point_rank.at(s) = new_rank;
+
 
 			for (int l = 0; l < L; l++) {
 				std::sort(query_buckets[l].begin(), query_buckets[l].end(), 
@@ -569,7 +570,7 @@ int main(int argc, char** argv){
 
 	memset(avgRes,0,sizeof(avgRes));//initialize the results to 0
 	TotalTestNum=0;//initialize to 0
-	for (int q=0 ; q<Q ; ++q)//run it for the first Q queries
+	for (int q=0; q<Q ; ++q)//run it for the first Q queries
 		Query(q);
 
 	// generate nice result file name 
