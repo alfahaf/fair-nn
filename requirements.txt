@@ -1,0 +1,6 @@
+numpy
+sklearn
+pyyaml
+pandas
+seaborn
+h5py
