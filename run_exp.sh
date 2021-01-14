@@ -13,3 +13,5 @@ done
 for exp in lastfm.yml movielens.yml; do
     $pypy run.py --exp-file ../exp-files/$exp
 done
+
+$python data_export.py > ../exp-res/exp.csv
