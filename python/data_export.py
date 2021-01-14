@@ -33,6 +33,6 @@ if __name__ == "__main__":
                     print(f"{ds},{k},{L},{method},\"{result['name']}\",{q},{point},{prob}")
         else:
             q = get_query_prob(result)
-            tvd = total_variation_dist(get_query_prob(result), result_prob(result["res"]))
+            tvd, _ = total_variation_dist(get_query_prob(result), result_prob(result["res"]))
             print(f"{ds},{k},{L},{method},\"{result['name']}\", {tvd}, {numpy.mean(1/q)}")
 

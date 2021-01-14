@@ -1,5 +1,0 @@
-numpy
-sklearn
-pyyaml
-pandas
-seaborn

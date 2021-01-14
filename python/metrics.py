@@ -22,4 +22,4 @@ def total_variation_dist(g, res):
         n = int(1/g[i])
         r = numpy.array([p for _, p in res[i]] + [0] * (n - len(res[i])))
         all[i] = 0.5 * numpy.sum(numpy.abs(r - g[i]))
-    return numpy.mean(all)
+    return numpy.mean(all), all
