@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 python=python3
 
 cd cpp/

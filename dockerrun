@@ -11,7 +11,7 @@ SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 COMMAND=$@
 
-container_name=${CONTAINER_NAME:-"running-experiments-demo"}
+container_name=${CONTAINER_NAME:-"fairnn"}
 
 command -v docker >/dev/null 2>&1 || { echo >&2 "Please install docker. E.g., go to https://www.docker.com/products/docker-desktop "; exit 1; }
 
@@ -25,7 +25,7 @@ GIT_SHA=$(git rev-parse --short HEAD)
 GIT_DIRTY=$(git diff --exit-code > /dev/null || echo "*")
 GIT_REV="$GIT_SHA$GIT_DIRTY"
 
-docker image inspect $container_name >/dev/null 2>&1 || ( echo "instantiating the container" ; docker build --no-cache -t $container_name -f $SCRIPTPATH/Dockerfile --build-arg USER_NAME="$USER"  --build-arg USER_ID=$(id -u)  --build-arg GROUP_ID=$(id -g) .  )
+docker image inspect $container_name >/dev/null 2>&1 || ( echo "instantiating the container" ; docker build -t $container_name -f $SCRIPTPATH/Dockerfile --build-arg USER_NAME="$USER"  --build-arg USER_ID=$(id -u)  --build-arg GROUP_ID=$(id -g) .  )
 
 # We run in privileged mode to have access to performance counters.
 if [[ $- == *i* ]]
