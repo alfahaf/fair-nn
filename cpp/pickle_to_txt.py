@@ -5,6 +5,7 @@ import sys
 
 
 fn = sys.argv[1]
+print(fn)
 with open(fn, 'rb') as f:
     data, queries, _, _ = pickle.load(f)
 

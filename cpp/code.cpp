@@ -341,11 +341,17 @@ int exact_degree(int iq , int ip){
 
 map <int,int> Degree;//this variable is used to compute the exact degrees of the points in the bucket correnponding to the current query. This is used for comparison with the optimal algorithm. Degree[ip] shows the exact degree of the point with index ip among the buckets of the current query.
 
-const int cases = 5;//This corresponds to the four algorithms we are implementing 
+const int cases = 7;//This corresponds to the four algorithms we are implementing 
 //0 is the Uniform/Uniform algorithm, 1 is the Weighted/Uniform algorithm, 2 is the optimal algorithm, 3 is our proposed algorithm
 
 double avgRes[cases];//This variable keeps the average results for each algorithm.
 int TotalTestNum=0;// This variable shows the number of times we run the algorithm for different queries.
+
+int TotalNonNear=0; // This variable records the number of times a non-near point was found 
+int TotalRejections=0; // This variable records the number of times a near point was rejected 
+
+long long nonNear[cases];
+long long rejections[cases];
 
 
 /* this algorithm receives a query and draws snum number of samples according to the 
@@ -425,6 +431,7 @@ void RandomSample(int cd , int iq, int snum){
 			}
 
 			if (ComputeDist(iq, s) > R) {
+				TotalNonNear++;
 				for (auto &l: min_locations) {
 					query_buckets[l].pop_back();
 				}
@@ -456,6 +463,44 @@ void RandomSample(int cd , int iq, int snum){
 						return point_rank.at(a) > point_rank.at(b);
 					});
 			}
+		}
+	 } else if (cd == 5) {
+		vector<set<int>> query_buckets;
+		for (int l=0 ; l<L ; ++l){
+			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+			int count=0;
+			set<int> points;
+			while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
+				points.insert(it->second);
+				it++;
+				count++;
+			}
+			query_buckets.push_back(points);
+			sizes[l] = count;
+			if (l==0)
+				sumsize = sizes[l];
+			else
+				sumsize += sizes[l];
+		}
+	 } else if (cd == 6) {
+		vector<vector<int>> query_buckets; 
+		for (int l=0 ; l<L ; ++l){
+			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+			vector<int> points;
+			while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
+				points.push_back(it->second);
+				it++;
+			}
+			query_buckets.push_back(points);
+		}
+        // Implementation of the dependent-between-query approach based on random ranks
+		// sort all buckets by rank
+		for (auto& points: query_buckets) {
+			std::sort(points.begin(), points.end(), 
+				[](const int& a, const int& b) -> bool
+				{
+					return point_rank[a] > point_rank[b]; // sort in descending order for quick removal of elements
+			});
 		}
  	} else {
 		//computing the parameters sizes and sumsize of the buckets so that we dont have to compute it each time we draw a sample
@@ -494,6 +539,7 @@ void RandomSample(int cd , int iq, int snum){
 				query_buckets[l].erase(s); // remove the point from the data structure
 				sizes[l]--;
 				sumsize--;
+				TotalNonNear++;
 				continue;
 			}
 			bool valid = false;//shows if we should keep the sample or reject it.
@@ -513,6 +559,8 @@ void RandomSample(int cd , int iq, int snum){
 					mp[s] = mp[s]+1;
 				else
 					mp[s] = 1;
+			} else {
+				TotalRejections++;
 			}
 		}
 	}
@@ -548,7 +596,14 @@ void Query(int qq){
 		for (int j=0 ; j<cases ; ++j) {//for each of the four algorithms
 				auto start = timer.now();
 
+				TotalNonNear = 0;
+				TotalRejections = 0;
+
 				RandomSample(j, qq, SAMPLES);
+				if (SAMPLES > 0) { 
+					nonNear[j] += TotalNonNear / SAMPLES;
+					rejections[j] += TotalRejections / SAMPLES;
+				}
 
 				auto query_time_in_s =  (timer.now() - start).count() / 1e9;
 				if (times.find(j) == times.end()) {
@@ -569,6 +624,8 @@ int main(int argc, char** argv){
 	ComputeRetrievalRate(); // this is used for tuning the parameters of LSH only
 
 	memset(avgRes,0,sizeof(avgRes));//initialize the results to 0
+	memset(nonNear,0,sizeof(nonNear));//initialize the results to 0
+	memset(rejections,0,sizeof(rejections));//initialize the results to 0
 	TotalTestNum=0;//initialize to 0
 	for (int q=0; q<Q ; ++q)//run it for the first Q queries
 		Query(q);
@@ -586,7 +643,7 @@ int main(int argc, char** argv){
 	for (int i=0 ; i<cases ; ++i) {
 		auto query_times = times.find(i)->second;
 		auto avgTime = accumulate(query_times.begin(), query_times.end(), 0.0) / query_times.size();
-		fout << i << ", " << avgRes[i]/(200*TotalTestNum) << ", " << avgTime << endl; // we are dividing by 200 (2 is for the statistical distance and 100 is because we used 100*m samples per query.
+		fout << i << ", " << avgRes[i]/(200*TotalTestNum) << ", " << avgTime << ", " << nonNear[i] << ", " << rejections[i] << endl; // we are dividing by 200 (2 is for the statistical distance and 100 is because we used 100*m samples per query.
 	}
 	fout.close();
 
