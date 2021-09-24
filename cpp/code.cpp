@@ -16,6 +16,8 @@
 #include <cassert>
 using namespace std;
 
+#include "fastrng.h"
+
 
 const int maxn = 10001;//maximum number of points in the data set
 const int maxQ = 101;//maximum number of queries asked
@@ -243,6 +245,7 @@ void BuildLSH(){
 //this function is also used only for tuning the parameters of LSH
 void ComputeRetrievalRate(){
 	int avgN =0;
+	int avgNotNear = 0;
 	int avgO = 0;
 	int avgFN=0;
 	int close=0;
@@ -259,6 +262,8 @@ void ComputeRetrievalRate(){
 				neighborhood++;
 				if (ComputeDist(i,j)>1.3*R)
 					avgO++;
+				if (ComputeDist(i,j)>R)
+					avgNotNear++;
 			}
 			if (ComputeDist(i,j)<R){
 				close++;
@@ -270,6 +275,7 @@ void ComputeRetrievalRate(){
 	}
 	cout << "average neighborhood size is " << avgN/Q << endl;
 	cout << "average Outliers is " << avgO/Q << endl;
+	cout << "average not near is " << avgNotNear/Q << endl;
 	cout << "average False Negative is " << (avgFN*100)/close << "\%" << endl;
 	return;
 }
@@ -277,6 +283,8 @@ void ComputeRetrievalRate(){
 
 int sizes[maxL];// each time we get a query, we compute the sizes of the buckets corresponding to the query.
 int sumsize;//and we compute the sum of sizes[0] ...sizes[(-1] of the sizes in the sumsize variable to be able to generate a random value in that range
+
+deann::FastRng* rng; 
 
 
 //This function returns a random bucket according to its size and then a random point inside the bucket.
@@ -322,7 +330,8 @@ int approximate_degree(int iq , int ip){
 	int num=0;
 	while (num<L){
 		num++;
-		int l = rand()%L;
+		//int l = rand()%L;
+		int l = (*rng)(); 
 		if (hQuery[l][iq]==hPoint[l][ip])
 			break;
 	}
@@ -349,6 +358,8 @@ int TotalTestNum=0;// This variable shows the number of times we run the algorit
 
 int TotalNonNear=0; // This variable records the number of times a non-near point was found 
 int TotalRejections=0; // This variable records the number of times a near point was rejected 
+long long TotalCloseColliding=0;
+int TotalMaxDegree=0;
 
 long long nonNear[cases];
 long long rejections[cases];
@@ -364,30 +375,6 @@ void RandomSample(int cd , int iq, int snum){
 	map<int,int> mp;//This shows the distribution over the points in the neighborhood of the query.
 
 // This is in implementation of collecting all points, around 3x times slower as opt in my tests.
-// 		set<int> elements;
-// 		for (int l=0 ; l<L ; ++l){
-// 			set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
-// 			while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
-// 				auto elem = (*it).second;
-// 				// cout << elem << " " << ComputeDist(elem, iq) << endl;
-// 				if (ComputeDist(iq, elem) <= R) {
-// 					elements.insert(elem);
-// 				}
-// 				it++;
-// 			}
-// 		}
-// 		vector<int> elem_vec;
-// 		for (auto& e: elements) {
-// 			elem_vec.push_back(e);
-// 		}
-// 		while (snum) {
-// 			auto s = elem_vec[rand() % elem_vec.size()];
-// 			snum--;
-// 			if (mp.find(s)!=mp.end())//update the distribution
-// 				mp[s] = mp[s]+1;
-// 			else
-// 				mp[s] = 1;
-// 		} 
 
  	if (cd == 4) {
 		vector<vector<int>> query_buckets; 
@@ -493,7 +480,7 @@ void RandomSample(int cd , int iq, int snum){
 			}
 			query_buckets.push_back(points);
 		}
-        // Implementation of the dependent-between-query approach based on random ranks
+		// Implementation of the dependent-between-query approach based on random ranks
 		// sort all buckets by rank
 		for (auto& points: query_buckets) {
 			std::sort(points.begin(), points.end(), 
@@ -502,6 +489,37 @@ void RandomSample(int cd , int iq, int snum){
 					return point_rank[a] > point_rank[b]; // sort in descending order for quick removal of elements
 			});
 		}
+	 } else if (cd == 7) {
+ 		while (snum) {
+			set<int> elements;
+			for (int l=0 ; l<L ; ++l){
+				set<pair<HP,int>>::iterator it = buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],-1));
+				while (it!= buckets[l].lower_bound(pair<HP,int>(hQuery[l][iq],maxn))){
+					auto elem = (*it).second;
+					// cout << elem << " " << ComputeDist(elem, iq) << endl;
+					//if (ComputeDist(iq, elem) <= R) {
+						elements.insert(elem);
+					//}
+					it++;
+				}
+			}
+			vector<int> elem_vec;
+			for (auto& e: elements) {
+				elem_vec.push_back(e);
+			}
+			
+			std::random_shuffle(elem_vec.begin(), elem_vec.end());
+			for (auto &s: elem_vec) {
+				if (ComputeDist(iq, s) <= R) {
+					snum--;
+					if (mp.find(s)!=mp.end())//update the distribution
+						mp[s] = mp[s]+1;
+					else
+						mp[s] = 1;
+					break;
+				}
+			}
+		 }
  	} else {
 		//computing the parameters sizes and sumsize of the buckets so that we dont have to compute it each time we draw a sample
 		vector<set<int>> query_buckets;
@@ -592,6 +610,17 @@ void Query(int qq){
 	}
 	int SAMPLES = 100 * Degree.size(); //generate 100*m samples where m is the size of the neighborhood
 
+	int avg_degree = 0;
+	int max_degree = 0;
+
+	for (auto &p: Degree) {
+		avg_degree += p.second;
+		max_degree = std::max(p.second, max_degree);
+	}
+
+	TotalCloseColliding += avg_degree / (double) Degree.size();
+	TotalMaxDegree += max_degree;
+
 	for (int i=0 ; i<RUNS ; ++i) {
 		for (int j=0 ; j<cases ; ++j) {//for each of the four algorithms
 				auto start = timer.now();
@@ -627,8 +656,10 @@ int main(int argc, char** argv){
 	memset(nonNear,0,sizeof(nonNear));//initialize the results to 0
 	memset(rejections,0,sizeof(rejections));//initialize the results to 0
 	TotalTestNum=0;//initialize to 0
+	rng = new deann::FastRng(L);
 	for (int q=0; q<Q ; ++q)//run it for the first Q queries
 		Query(q);
+
 
 	// generate nice result file name 
 	auto slash_pos = dataset_fn.find_last_of("/");
@@ -638,12 +669,15 @@ int main(int argc, char** argv){
 		"_(k=" << k << ", L=" << L << ", w=" << w << ")_results.out"; 
 	auto expfile_fn = ss.str();
 
+	std::cout << "Writing result file to " << expfile_fn << std::endl;
+
 	ofstream fout(expfile_fn);//outputting the result
 	TotalTestNum/=cases;
 	for (int i=0 ; i<cases ; ++i) {
 		auto query_times = times.find(i)->second;
 		auto avgTime = accumulate(query_times.begin(), query_times.end(), 0.0) / query_times.size();
-		fout << i << ", " << avgRes[i]/(200*TotalTestNum) << ", " << avgTime << ", " << nonNear[i] << ", " << rejections[i] << endl; // we are dividing by 200 (2 is for the statistical distance and 100 is because we used 100*m samples per query.
+		fout << i << ", " << avgRes[i]/(200*TotalTestNum) << ", " << avgTime << ", " << nonNear[i] / (double) TotalTestNum  << ", " << rejections[i] / (double) TotalTestNum << 
+		", " << TotalCloseColliding / (double) Q << ", " << TotalMaxDegree / (double) Q << endl; // we are dividing by 200 (2 is for the statistical distance and 100 is because we used 100*m samples per query.
 	}
 	fout.close();
 
